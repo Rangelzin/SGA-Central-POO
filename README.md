@@ -25,12 +25,10 @@ Desenvolver uma plataforma unificada que:
 - Elimine a fragmentação dos sistemas atuais
 - Garanta integridade dos dados acadêmicos
 - Facilite a emissão de históricos e relatórios
-- Permita integração com sistemas legados (financeiro e biblioteca)
 
 ---
 
 ## ⚠️ Desafios do Projeto
-- Integração com sistemas legados sem documentação
 - Resistência dos usuários à mudança
 - Prazo restrito
 - Equipe reduzida
@@ -43,7 +41,6 @@ Desenvolver uma plataforma unificada que:
 - Registro de notas e frequência
 - Emissão de históricos e relatórios
 - Portais web responsivos
-- Integração via API com sistemas externos
 
 ---
 
@@ -51,7 +48,7 @@ Desenvolver uma plataforma unificada que:
 - Refatoração dos sistemas legados
 - Gestão contábil interna
 - Infraestrutura física de rede
-
+- integração com sistemas legados (financeiro e biblioteca)
 ---
 
 ## 🏗️ Arquitetura
@@ -66,7 +63,6 @@ flowchart TD
     C --> D[Camada de Domínio\nEntidades + Regras de Negócio]
     D --> E[Camada de Infraestrutura\nRepositories + Integrações]
     E --> F[(PostgreSQL)]
-    E --> G[APIs Sistemas Legados]
 ```
 
 ### Estrutura de Pastas (Spring Boot)
@@ -102,12 +98,10 @@ sga/
 │           └── db/
 │               └── migration/         # Flyway migrations
 ├── frontend/                          # HTML + CSS estático
-│   ├── index.html
-│   ├── alunos.html
-│   └── css/
-│       └── style.css
+│   ├── **.jsx              # Desenvolvimento do Front-end em React
 ├── docker-compose.yml
 ├── Dockerfile
+├── CONTRIBUTING.md
 └── README.md
 ```
 
@@ -117,17 +111,11 @@ sga/
 
 | Camada        | Tecnologia         | Status         |
 |---------------|--------------------|----------------|
-| Backend       | Spring Boot        | ✅ Definido     |
-| Banco de Dados| PostgreSQL         | ✅ Definido     |
-| Container     | Docker             | ✅ Definido     |
-| Frontend      | HTML + CSS         | 🔄 Provisório  |
+| Backend       | Spring Boot        | ✅ Definido    |
+| Banco de Dados| PostgreSQL         | ✅ Definido    |
+| Container     | Docker             | ✅ Definido    |
+| Frontend      | React + Nextjs     | ✅ Definido    |
 | Autenticação  | A definir          | ⏳ Pendente    |
-
----
-
-## 🔌 Integrações
-- Sistema de Biblioteca (legado)
-- Sistema Financeiro/Contábil (legado)
 
 ---
 
@@ -136,14 +124,6 @@ sga/
 - Escalabilidade
 - Responsividade
 - Consistência de dados
-
----
-
-## 📌 Decisões Pendentes
-- [ ] Definição final do frontend
-- [ ] Estratégia de autenticação (JWT? OAuth?)
-- [ ] Estratégia de integração com legados
-- [ ] Padrão de persistência (JPA puro vs Repository customizado)
 
 ---
 

@@ -1,0 +1,30 @@
+@startuml Diagramas de Caso de Uso - Sistema de Gestão Acadêmica (SGA)
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Aluno" as Aluno
+actor "Professor" as Professor
+actor "Administrador" as Admin
+
+rectangle "Sistema de Gestão Acadêmica (SGA)" {
+    usecase "UC-01\nGerenciar Alunos" as UC01
+    usecase "UC-02\nGerenciar Professores" as UC02
+    usecase "UC-03\nGerenciar Disciplinas" as UC03
+    usecase "UC-04\nRealizar Matrícula" as UC04
+    usecase "UC-05\nRegistrar Notas\ne Frequência" as UC05
+    usecase "UC-06\nConsultar Histórico\nAcadêmico" as UC06
+    usecase "UC-07\nGerar Relatório\nde Desempenho" as UC07
+}
+
+Admin --> UC01
+Admin --> UC02
+Admin --> UC03
+Admin --> UC07
+
+Aluno --> UC04
+Aluno --> UC06
+
+Professor --> UC05
+Professor --> UC07
+@enduml
