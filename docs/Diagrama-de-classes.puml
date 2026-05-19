@@ -1,0 +1,56 @@
+@startuml Diagrama de Classes
+class Pessoa {
+    - nome : string
+    - email : string
+    - dataNascimento : LocalDateTime
+}
+
+class Aluno {
+    - matrícula : string 
+    - curso : string
+}
+
+class Professor {
+    - titulação : string
+    - departamento : string
+}
+
+class Turma{
+
+}
+
+class Matriculado {
+
+}
+
+class Avalia {
+
+}
+
+class Disciplina {
+
+}
+
+class Curso {
+
+}
+
+class Departamento {
+
+}
+
+class Universidade {
+
+}
+
+Universidade --> Departamento : tem
+Curso --> Disciplina : possui 
+Departamento --> Curso : possui
+Departamento --> Disciplina : possui
+Disciplina --> Turma : tem
+Aluno - Turma
+(Aluno,Turma) .. Matriculado
+(Turma,Aluno) .. Avalia
+Pessoa <|-- Aluno
+Pessoa <|-- Professor
+@enduml 
