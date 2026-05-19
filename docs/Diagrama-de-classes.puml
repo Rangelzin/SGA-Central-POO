@@ -1,56 +1,146 @@
 @startuml Diagrama de Classes
-class Pessoa {
-    - nome : string
-    - email : string
-    - dataNascimento : LocalDateTime
+
+abstract class Pessoa {
+    - uuid : UUID
+    - nome : String
+    - email : String
+    - senha : String
+    - role : String
+    - matricula : String
+    - cpf : String
+    - dataNascimento : LocalDate
+    +autenticar(email: String, senha: String): boolean
+    +getNome(): String
+    +getEmail(): String
+    +getRole(): String
+    +getMatricula(): String
+    +getCpf(): String
 }
 
 class Aluno {
-    - matrícula : string 
-    - curso : string
+    - nota : Double
+    - frequencia : Double
+    +realizarMatricula(turma: Turma): Matriculado
+    +cancelarMatricula(turma: Turma): void
+    +consultarHistorico(): List<Matriculado>
+    +getNota(): Double
+    +getFrequencia(): Double
 }
 
 class Professor {
-    - titulação : string
-    - departamento : string
+    - titulacao : String
+    +registrarNota(matriculado: Matriculado, nota: Double): void
+    +registrarFrequencia(matriculado: Matriculado, frequencia: Integer): void
+    +listarTurmas(): List<Turma>
+    +gerarRelatorioTurma(turma: Turma): String
+    +getTitulacao(): String
 }
 
-class Turma{
-
+class Turma {
+    - uuid : UUID
+    - codigo : String
+    - horario : String
+    - localidade : String
+    - dataIn : LocalDate
+    - dataOut : LocalDate
+    +adicionarAluno(aluno: Aluno): Matriculado
+    +removerAluno(aluno: Aluno): void
+    +isVagaDisponivel(): boolean
+    +listarAlunos(): List<Aluno>
+    +gerarRelatorio(): String
+    +getVagasDisponiveis(): Integer
 }
 
 class Matriculado {
-
+    - uuid : UUID
+    - nota : Double
+    - status : String
+    - frequencia : Integer
+    +calcularMedia(): Double
+    +calcularSituacao(): String
+    +adicionarAvaliacao(avaliacao: Avalia): void
+    +isAprovado(): boolean
 }
 
 class Avalia {
-
+    - status : String
+    - descricao : String
+    - nota : Double
+    - tipo : String
+    - dataIn : LocalDate
+    - dataOut : LocalDate
+    - arquivos : List<String>
+    +registrar(nota: Double, tipo: String): void
+    +calcularPeso(): Double
+    +getNota(): Double
 }
 
 class Disciplina {
-
+    - codigo : String
+    - tipo : String
+    - cargaHoraria : Integer
+    - preRequisito : String
+    +listarTurmas(): List<Turma>
+    +ativar(): void
+    +getCodigo(): String
+    +getCargaHoraria(): Integer
 }
 
 class Curso {
+    - sigla : String
+    - nome : String
+    +listarDisciplinas(): List<Disciplina>
+    +calcularCargaHorariaTotal(): Integer
+    +getNome(): String
+}
 
+class CargaHoraria {
+    - chObrigatoria : Integer
+    - chOptativa : Integer
+    - chNucleoLivre : Integer
+    +calcularTotal(): Integer
 }
 
 class Departamento {
-
+    - sigla : String
+    - nome : String
+    +listarProfessores(): List<Professor>
+    +listarCursos(): List<Curso>
+    +getNome(): String
 }
 
 class Universidade {
-
+    - nome : String
+    - sigla : String
+    +listarDepartamentos(): List<Departamento>
+    +getNome(): String
 }
 
-Universidade --> Departamento : tem
-Curso --> Disciplina : possui 
-Departamento --> Curso : possui
-Departamento --> Disciplina : possui
-Disciplina --> Turma : tem
-Aluno - Turma
-(Aluno,Turma) .. Matriculado
-(Turma,Aluno) .. Avalia
+class Endereco {
+    - numero : String
+    - cep : String
+    - obs : String
+    +getEnderecoCompleto(): String
+}
+
 Pessoa <|-- Aluno
 Pessoa <|-- Professor
-@enduml 
+
+Universidade "1" *-- "1" Endereco
+Departamento "1" *-- "1" Endereco
+Curso "1" *-- "1" CargaHoraria
+
+Universidade "1" --> "1..*" Departamento : tem
+Departamento "1" --> "1..*" Curso : possui
+Departamento "1" --> "1..*" Disciplina : possui
+Curso "1..*" --> "1..*" Disciplina : contém
+Disciplina "1" --> "0..*" Turma : possui
+
+Professor "1" --> "1" Departamento : pertence a
+Professor "1" --> "0..*" Turma : ministra
+Aluno "1..*"<-- "1..*" Turma
+Aluno "1..*"--> "1..*" Turma
+(Aluno, Turma) .. Matriculado
+(Aluno, Turma) .. Avalia
+
+@enduml
