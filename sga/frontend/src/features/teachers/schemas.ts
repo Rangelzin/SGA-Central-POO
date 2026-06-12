@@ -1,0 +1,15 @@
+import { z } from "zod";
+import { stripCpf } from "@/lib/utils";
+
+export const teacherSchema = z.object({
+  name: z.string().min(3, "Informe o nome completo."),
+  cpf: z
+    .string()
+    .refine((value) => stripCpf(value).length === 11, "CPF deve ter 11 dígitos."),
+  birthDate: z.string().min(1, "Informe a data de nascimento."),
+  email: z.email("Informe um e-mail válido."),
+  title: z.string().min(1, "Informe a titulação."),
+  departmentId: z.string().min(1, "Selecione o departamento."),
+});
+
+export type TeacherFormValues = z.infer<typeof teacherSchema>;
