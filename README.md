@@ -127,13 +127,86 @@ sga/
 
 ---
 
-## 🚀 Como Rodar (Em construção)
+## 🚀 Como Rodar
 
-> Será definido nas próximas etapas.
+### Pré-requisitos
+- Docker e Docker Compose instalados
+- Git configurado
+
+### Instalação e Execução
+
+1. **Clone o repositório:**
+```bash
+git clone https://github.com/Rangelzin/SGA-Central-POO.git
+cd SGA-Central-POO
+```
+
+2. **Configure as variáveis de ambiente:**
+```bash
+cp .env.example .env
+```
+
+3. **Inicie os containers (Backend + PostgreSQL):**
+```bash
+docker compose up --build
+```
+
+4. **Acesse a aplicação:**
+- Backend API: http://localhost:8080
+- PostgreSQL: localhost:5432
+
+
+### Comandos Úteis
+
+**Parar os containers:**
+```bash
+docker compose down
+```
+
+**Limpar volumes e dados:**
+```bash
+docker compose down -v
+```
+
+**Ver logs em tempo real:**
+```bash
+docker compose logs -f
+```
+
+**Reiniciar apenas o backend:**
+```bash
+docker compose restart backend-app
+```
+
+### Desenvolvimento Local (sem Docker)
+
+1. **Instale as dependências do backend:**
+```bash
+cd sga
+./gradlew build
+```
+
+2. **Inicie o PostgreSQL localmente:**
+```bash
+docker run -d \
+  --name postgres-local \
+  -e POSTGRES_DB=SGAI \
+  -e POSTGRES_USER=SGAI \
+  -e POSTGRES_PASSWORD=SGAI_1234 \
+  -p 5432:5432 \
+  postgres:16-alpine
+```
+
+3. **Execute a aplicação:**
+```bash
+./gradlew bootRun
+```
+
+A aplicação estará disponível em http://localhost:8080
 
 ---
 
-## 📊 Modelagem (Em Construção)
+## 📊 Modelagem
 - Casos de Uso
 - Diagrama de Classes
 - Requisitos Funcionais e Não Funcionais

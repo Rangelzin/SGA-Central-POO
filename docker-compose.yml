@@ -1,0 +1,30 @@
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: sga-postgres-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-SGAI}
+      POSTGRES_USER: ${DB_USERNAME:-SGAI}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-SGAI_1234}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  backend-app:
+    build: .
+    container_name: sga-backend-app
+    environment:
+      DB_URL: jdbc:postgresql://postgres-db:5432/${DB_NAME:-SGAI}
+      DB_USERNAME: ${DB_USERNAME:-SGAI}
+      DB_PASSWORD: ${DB_PASSWORD:-SGAI_1234}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres-db
+    restart: always
+
+volumes:
+  pgdata:
+    driver: local
