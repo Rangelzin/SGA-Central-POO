@@ -1,7 +1,7 @@
 # 🎯 Backlog de Tasks - SGA-Central-POO
 
 **Gerado em:** 18 de junho de 2026  
-**Total de Tasks:** 16  
+**Total de Tasks:** 111
 
 ---
 
@@ -10,9 +10,8 @@
 | Prioridade | Quantidade | 
 |-----------|-----------|
 | 🔴 ALTA | 7 | 
-| 🟠 MÉDIA | 5 | 
-| 🟡 BAIXA | 4 | 
-| **TOTAL** | **16** | 
+| 🟠 MÉDIA | 4 |  
+| **TOTAL** | **11** | 
 
 ## 🌳 Branchs para serem usadas:
 
@@ -995,31 +994,9 @@ public class Aluno extends Pessoa {
 
 ---
 
-## MÉDIA-4: Logs e Auditoria
+## MÉDIA-4: Documentação API (Swagger)
 
-**ID:** MÉDIA-4  
-**Título:** Implementar Logging e Auditoria  
-**Prioridade:** 🟠 MÉDIA  
-**Labels:** `backend`, `logging`, `audit`
-
-**Descrição:**
-Adicionar logging (SLF4J + Log4j2) e auditoria de operações.
-
-**Checklist:**
-- [ ] Configurar SLF4J + Log4j2
-- [ ] Adicionar logs em services (INFO, WARN, ERROR)
-- [ ] Adicionar logs de auditoria (quem criou/editou, quando)
-- [ ] Implementar AuditEntity (created_at, created_by, updated_at, updated_by)
-- [ ] Adicionar @CreationTimestamp, @UpdateTimestamp, @CreatedBy, @LastModifiedBy
-- [ ] Logs estruturados (JSON)
-- [ ] Arquivo de logs rotacionado
-- [ ] Compilar sem erros
-
----
-
-## MÉDIA-5: Documentação API (Swagger)
-
-**ID:** MÉDIA-5  
+**ID:** MÉDIA-4
 **Título:** Documentação API com Swagger/OpenAPI  
 **Prioridade:** 🟠 MÉDIA  
 **Labels:** `documentation`, `swagger`, `openapi`
