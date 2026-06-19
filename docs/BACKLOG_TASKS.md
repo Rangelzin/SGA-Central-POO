@@ -1,7 +1,7 @@
 # 🎯 Backlog de Tasks - SGA-Central-POO
 
 **Gerado em:** 18 de junho de 2026  
-**Total de Tasks:** 111
+**Total de Tasks:** 10
 
 ---
 
@@ -10,8 +10,8 @@
 | Prioridade | Quantidade | 
 |-----------|-----------|
 | 🔴 ALTA | 7 | 
-| 🟠 MÉDIA | 4 |  
-| **TOTAL** | **11** | 
+| 🟠 MÉDIA | 3 |  
+| **TOTAL** | **10** | 
 
 ## 🌳 Branchs para serem usadas:
 
@@ -876,45 +876,9 @@ public class Aluno extends Pessoa {
 
 # 🟠 TAREFAS IMPORTANTES (MÉDIA PRIORIDADE)
 
-## MÉDIA-1: Testes Unitários do Backend
+## MÉDIA-1: Autenticação e Autorização (Spring Security + JWT)
 
 **ID:** MÉDIA-1  
-**Título:** Implementar Testes Unitários com Cobertura ≥ 50%  
-**Prioridade:** 🟠 MÉDIA  
-**Labels:** `backend`, `testing`, `unit-tests`  
-**Depends On:** ALTA-3, ALTA-4
-
-**Descrição:**
-Implementar testes unitários para services e repositories.
-
-**Checklist:**
-- [ ] Testes @DataJpaTest para cada repository
-- [ ] Testes de service com Mockito
-- [ ] Testes de validação de regras de negócio
-  - [ ] RF-03: Não ativar disciplina sem professor
-  - [ ] RF-04: Não permitir duplicidade de matrícula
-  - [ ] RF-04: Validar vagas disponíveis
-  - [ ] RF-05: Cálculo de aprovação (média ≥ 6.0 e frequência ≥ 75%)
-  - [ ] RF-05: Cálculo de média ponderada
-- [ ] Testes de controller 
-- [ ] Cobertura mínima 50%
-- [ ] Relatório de cobertura (JaCoCo)
-- [ ] Compilar sem erros
-
-**Target de Cobertura:**
-- Repositories: 80%
-- Services: 70%
-- Controllers: 60%
-- Geral: 50%
-
-**Critérios Atendidos:**
-- ✅ (g) Casos de teste
-
----
-
-## MÉDIA-2: Autenticação e Autorização (Spring Security + JWT)
-
-**ID:** MÉDIA-2  
 **Título:** Implementar Spring Security + JWT  
 **Prioridade:** 🟠 MÉDIA  
 **Labels:** `backend`, `security`, `authentication`, `jwt`
@@ -954,9 +918,9 @@ GET    /api/auth/me             - Dados do usuário autenticado
 
 ---
 
-## MÉDIA-3: Validações Customizadas
+## MÉDIA-2: Validações Customizadas
 
-**ID:** MÉDIA-3  
+**ID:** MÉDIA-2 
 **Título:** Implementar Validadores Customizados  
 **Prioridade:** 🟠 MÉDIA  
 **Labels:** `backend`, `validation`  
@@ -994,9 +958,9 @@ public class Aluno extends Pessoa {
 
 ---
 
-## MÉDIA-4: Documentação API (Swagger)
+## MÉDIA-3: Documentação API (Swagger)
 
-**ID:** MÉDIA-4
+**ID:** MÉDIA-3
 **Título:** Documentação API com Swagger/OpenAPI  
 **Prioridade:** 🟠 MÉDIA  
 **Labels:** `documentation`, `swagger`, `openapi`
