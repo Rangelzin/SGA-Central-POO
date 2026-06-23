@@ -1,0 +1,187 @@
+// =====================================================================
+// SGA - Sistema de Gestão Acadêmica
+// Modelo físico de dados (DBML) — derivado de docs/Diagrama-de-classes.puml
+//
+// Visualize/edite em: https://dbdiagram.io
+//
+// Notas de modelagem:
+//  - Pessoa é @MappedSuperclass: NÃO existe tabela "pessoa". Suas colunas
+//    são replicadas em aluno, professor e admin (table-per-concrete-class).
+//  - Endereco e CargaHoraria são @Embeddable: viram COLUNAS nas tabelas
+//    donas (universidade, departamento, curso), não tabelas próprias.
+//  - matriculado é a entidade de junção Aluno x Turma (associação N:M com
+//    atributos). curso_disciplina é a junção pura do N:M Curso x Disciplina.
+//  - avalia_arquivos materializa o @ElementCollection List<String> de Avalia.
+//  - Nomes de colunas em snake_case (naming strategy padrão do Hibernate).
+// =====================================================================
+
+Project sga {
+  database_type: 'PostgreSQL'
+  Note: 'Sistema de Gestão Acadêmica — esquema gerado a partir do diagrama de classes.'
+}
+
+// ---------------------------------------------------------------------
+// Pessoas (herdam os campos de Pessoa via @MappedSuperclass)
+// ---------------------------------------------------------------------
+
+Table aluno {
+  uuid             uuid           [pk]
+  nome             varchar(120)   [not null]
+  email            varchar(255)   [not null, unique]
+  senha            varchar(255)   [not null]
+  role             varchar(50)
+  matricula        varchar(20)
+  cpf              varchar(14)    [not null, unique]
+  data_nascimento  date           [not null]
+  nota             float8        [note: 'média geral do aluno']
+  frequencia       float8
+}
+
+Table professor {
+  uuid             uuid           [pk]
+  nome             varchar(120)   [not null]
+  email            varchar(255)   [not null, unique]
+  senha            varchar(255)   [not null]
+  role             varchar(50)
+  matricula        varchar(20)
+  cpf              varchar(14)    [not null, unique]
+  data_nascimento  date           [not null]
+  titulacao        varchar(100)
+  departamento_id  uuid           [note: 'FK -> departamento; professor pertence a 1 departamento']
+}
+
+Table admin {
+  uuid             uuid           [pk]
+  nome             varchar(120)   [not null]
+  email            varchar(255)   [not null, unique]
+  senha            varchar(255)   [not null]
+  role             varchar(50)
+  matricula        varchar(20)
+  cpf              varchar(14)    [not null, unique]
+  data_nascimento  date           [not null]
+}
+
+// ---------------------------------------------------------------------
+// Estrutura institucional
+// ---------------------------------------------------------------------
+
+Table universidade {
+  uuid             uuid           [pk]
+  nome             varchar(255)   [not null]
+  sigla            varchar(50)    [not null]
+  // @Embedded Endereco
+  numero           varchar(20)
+  cep              varchar(9)
+  obs              varchar(255)
+}
+
+Table departamento {
+  uuid             uuid           [pk]
+  sigla            varchar(50)    [not null]
+  nome             varchar(255)   [not null]
+  universidade_id  uuid
+  // @Embedded Endereco
+  numero           varchar(20)
+  cep              varchar(9)
+  obs              varchar(255)
+}
+
+Table curso {
+  uuid             uuid           [pk]
+  sigla            varchar(50)    [not null]
+  nome             varchar(255)   [not null]
+  departamento_id  uuid
+  // @Embedded CargaHoraria
+  ch_obrigatoria   integer
+  ch_optativa      integer
+  ch_nucleo_livre  integer
+}
+
+Table disciplina {
+  uuid             uuid           [pk]
+  codigo           varchar(50)    [not null]
+  tipo             varchar(50)
+  carga_horaria    integer        [not null]
+  pre_requisito    varchar(255)
+  departamento_id  uuid
+}
+
+// ---------------------------------------------------------------------
+// Operação acadêmica (turmas, matrículas e avaliações)
+// ---------------------------------------------------------------------
+
+Table turma {
+  uuid             uuid           [pk]
+  codigo           varchar(50)    [not null]
+  horario          varchar(100)
+  localidade       varchar(100)
+  data_in          date
+  data_out         date
+  disciplina_id    uuid
+  professor_id     uuid
+}
+
+Table matriculado {
+  uuid             uuid           [pk]
+  nota             float8
+  status           varchar(50)
+  frequencia       integer
+  aluno_id         uuid
+  turma_id         uuid
+
+  indexes {
+    (aluno_id, turma_id) [unique, name: 'uq_matriculado_aluno_turma']
+  }
+}
+
+Table avalia {
+  uuid             uuid           [pk]
+  status           varchar(50)
+  descricao        varchar(255)
+  nota             float8
+  tipo             varchar(50)
+  data_in          date
+  data_out         date
+  matriculado_id   uuid
+}
+
+// ---------------------------------------------------------------------
+// Tabelas auxiliares (N:M e coleções de elementos)
+// ---------------------------------------------------------------------
+
+Table curso_disciplina {
+  curso_id         uuid           [not null]
+  disciplina_id    uuid           [not null]
+
+  indexes {
+    (curso_id, disciplina_id) [pk]
+  }
+  Note: 'Junção N:M entre Curso e Disciplina (@ManyToMany).'
+}
+
+Table avalia_arquivos {
+  avalia_id        uuid           [not null]
+  arquivo          varchar(512)   [not null]
+  Note: 'Materializa o @ElementCollection List<String> arquivos de Avalia.'
+}
+
+// ---------------------------------------------------------------------
+// Relacionamentos (FKs)
+// ---------------------------------------------------------------------
+
+Ref: professor.departamento_id   > departamento.uuid
+Ref: departamento.universidade_id > universidade.uuid
+Ref: curso.departamento_id       > departamento.uuid
+Ref: disciplina.departamento_id  > departamento.uuid
+
+Ref: turma.disciplina_id         > disciplina.uuid
+Ref: turma.professor_id          > professor.uuid
+
+Ref: matriculado.aluno_id        > aluno.uuid
+Ref: matriculado.turma_id        > turma.uuid
+Ref: avalia.matriculado_id       > matriculado.uuid
+
+Ref: curso_disciplina.curso_id   > curso.uuid
+Ref: curso_disciplina.disciplina_id > disciplina.uuid
+
+Ref: avalia_arquivos.avalia_id   > avalia.uuid

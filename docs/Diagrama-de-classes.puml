@@ -36,6 +36,11 @@ class Professor {
     +getTitulacao(): String
 }
 
+class Admin {
+    +gerenciarUsuarios(): void
+    +gerarRelatorioGeral(): String
+}
+
 class Turma {
     - uuid : UUID
     - codigo : String
@@ -125,6 +130,7 @@ class Endereco {
 
 Pessoa <|-- Aluno
 Pessoa <|-- Professor
+Pessoa <|-- Admin
 
 Universidade "1" *-- "1" Endereco
 Departamento "1" *-- "1" Endereco
@@ -138,9 +144,11 @@ Disciplina "1" --> "0..*" Turma : possui
 
 Professor "1" --> "1" Departamento : pertence a
 Professor "1" --> "0..*" Turma : ministra
-Aluno "1..*"<-- "1..*" Turma
-Aluno "1..*"--> "1..*" Turma
+
+' Associação N:M entre Aluno e Turma resolvida pela classe de associação Matriculado.
+' Avalia pertence a uma matrícula (Matriculado), não diretamente a (Aluno, Turma).
+Aluno "0..*" -- "0..*" Turma
 (Aluno, Turma) .. Matriculado
-(Aluno, Turma) .. Avalia
+Matriculado "1" *-- "0..*" Avalia : possui
 
 @enduml
