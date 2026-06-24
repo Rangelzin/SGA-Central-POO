@@ -25,6 +25,19 @@ services:
       - postgres-db
     restart: always
 
+  frontend-app:
+    build:
+      context: ./sga/frontend
+      dockerfile: Dockerfile
+    container_name: sga-frontend-app
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://backend-app:8081/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend-app
+    restart: always
+
 volumes:
   pgdata:
     driver: local

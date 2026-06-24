@@ -30,33 +30,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Hidrata a sessão e revalida o token com GET /auth/me (RNF-02)
+  // TEMPORÁRIO: Desabilita hidratação de sessão para forçar tela de login
+  // TODO: Remover quando JWT estiver implementado no backend (ALTA-6)
   useEffect(() => {
-    const storedToken = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    const storedUser = window.localStorage.getItem(USER_STORAGE_KEY);
+    // const storedToken = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+    // const storedUser = window.localStorage.getItem(USER_STORAGE_KEY);
 
-    if (!storedToken || !storedUser) {
-      setIsLoading(false);
-      return;
-    }
+    // if (!storedToken || !storedUser) {
+    //   setIsLoading(false);
+    //   return;
+    // }
 
-    setToken(storedToken);
-    try {
-      setUser(JSON.parse(storedUser) as Person);
-    } catch {
-      window.localStorage.removeItem(USER_STORAGE_KEY);
-    }
+    // setToken(storedToken);
+    // try {
+    //   setUser(JSON.parse(storedUser) as Person);
+    // } catch {
+    //   window.localStorage.removeItem(USER_STORAGE_KEY);
+    // }
 
-    api
-      .get<Person>("/auth/me")
-      .then((response) => {
-        setUser(response.data);
-        window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(response.data));
-      })
-      .catch(() => {
-        // 401 já é tratado pelo interceptor (limpa sessão e redireciona)
-      })
-      .finally(() => setIsLoading(false));
+    // api
+    //   .get<Person>("/auth/me")
+    //   .then((response) => {
+    //     setUser(response.data);
+    //     window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(response.data));
+    //   })
+    //   .catch(() => {
+    //     // 401 já é tratado pelo interceptor (limpa sessão e redireciona)
+    //   })
+    //   .finally(() => setIsLoading(false));
+
+    // Força sempre ir para tela de login (sem backend JWT ainda)
+    setIsLoading(false);
   }, []);
 
   const login = useCallback(async (input: LoginInput) => {

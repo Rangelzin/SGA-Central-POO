@@ -18,14 +18,14 @@ export function useStudents(query: ListQuery) {
   return useQuery({
     queryKey: studentKeys.list(query),
     queryFn: () =>
-      api.get<Page<Student>>("/students", { params: query }).then((r) => r.data),
+      api.get<Page<Student>>("/alunos", { params: query }).then((r) => r.data),
   });
 }
 
 export function useStudent(id: string | undefined) {
   return useQuery({
     queryKey: studentKeys.detail(id ?? ""),
-    queryFn: () => api.get<Student>(`/students/${id}`).then((r) => r.data),
+    queryFn: () => api.get<Student>(`/alunos/${id}`).then((r) => r.data),
     enabled: Boolean(id),
   });
 }
@@ -33,7 +33,7 @@ export function useStudent(id: string | undefined) {
 export function useStudentTranscript(id: string | undefined) {
   return useQuery({
     queryKey: studentKeys.transcript(id ?? ""),
-    queryFn: () => api.get<Transcript>(`/students/${id}/transcript`).then((r) => r.data),
+    queryFn: () => api.get<Transcript>(`/alunos/${id}/historico`).then((r) => r.data),
     enabled: Boolean(id),
   });
 }
@@ -42,7 +42,7 @@ export function useStudentEnrollments(id: string | undefined) {
   return useQuery({
     queryKey: studentKeys.enrollments(id ?? ""),
     queryFn: () =>
-      api.get<Enrollment[]>(`/students/${id}/enrollments`).then((r) => r.data),
+      api.get<Enrollment[]>(`/alunos/${id}/matriculas`).then((r) => r.data),
     enabled: Boolean(id),
   });
 }
@@ -51,7 +51,7 @@ export function useCreateStudent() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: StudentInput) =>
-      api.post<Student>("/students", input).then((r) => r.data),
+      api.post<Student>("/alunos", input).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
       toast.success("Aluno criado com sucesso.");
@@ -64,7 +64,7 @@ export function useUpdateStudent(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: StudentInput) =>
-      api.put<Student>(`/students/${id}`, input).then((r) => r.data),
+      api.put<Student>(`/alunos/${id}`, input).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
       toast.success("Aluno atualizado com sucesso.");
@@ -76,7 +76,7 @@ export function useUpdateStudent(id: string) {
 export function useDeleteStudent() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/students/${id}`),
+    mutationFn: (id: string) => api.delete(`/alunos/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
       toast.success("Aluno removido.");
