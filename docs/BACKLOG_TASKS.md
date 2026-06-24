@@ -368,371 +368,93 @@ GET    /api/auth/me                - Dados do usuário autenticado
 **Depends On:** ALTA-1
 
 **Descrição:**
-Criar scripts SQL de migration aderentes ao modelo relacional definido no diagrama oficial do projeto (PDF). O schema deve refletir exatamente as tabelas, atributos, relacionamentos e enums presentes na modelagem.
+Criar os scripts SQL de migration (Flyway) que montam o schema do **modelo canônico** no PostgreSQL, fiéis a `docs/database.dbml` e às entidades JPA já implementadas na ALTA-1.
 
 **Fonte de Verdade:**
-- Modelo relacional do PDF fornecido pela equipe.
-- Não adicionar colunas, tabelas ou relacionamentos não presentes no modelo.
+- `docs/database.dbml` (modelo canônico) + as entidades em `com.sga.model`.
 - Não adicionar auditoria (`created_at`, `updated_at`).
 - Não adicionar autenticação, JWT ou requisitos futuros.
-- Não utilizar UUID em entidades cujo modelo define `BIGINT`.
+- Respeitar os tipos de ID (UUID vs BIGINT) e os nomes de coluna do modelo.
+- Conferir contra o DDL gerado pelo Hibernate antes de finalizar.
 
 ---
 
 ## Migrations a Implementar
 
-### V001__create_enums.sql
+> **Convenções (modelo canônico):**
+> - **Sem `CREATE TYPE ... ENUM`.** `role`, `status` e `tipo` são `VARCHAR`, mapeados por `@Enumerated(STRING)` no Java.
+> - **Herança JOINED:** tabela `pessoa` + `aluno`/`professor`/`admin` com `id` que é PK **e** FK → `pessoa(id)`.
+> - **IDs mistos:** UUID em `pessoa, aluno, professor, admin, turma, matriculado, avalia, arquivo`; BIGINT (identity) em `universidade, departamento, curso, disciplina`.
+> - **Embeddables:** `endereco` e `carga_horaria` **não** são tabelas — viram colunas inline.
+> - **Soft delete:** `@SoftDelete` adiciona uma coluna booleana de exclusão lógica em cada tabela de entidade (na JOINED, em `pessoa`). Confirme nome/posição gerando o DDL do Hibernate antes de fechar os scripts.
+>
+> Abaixo a **especificação** por arquivo — você escreve o SQL (entregável da task).
 
-```sql
-CREATE TYPE role AS ENUM (
-    'ALUNO',
-    'PROFESSOR',
-    'ADMIN'
-);
+### V001__estrutura_institucional.sql
 
-CREATE TYPE matricula_status AS ENUM (
-    'ATIVA',
-    'TRANCADA',
-    'CANCELADA',
-    'APROVADO',
-    'REPROVADO'
-);
+Tabelas BIGINT (identity). `endereco`/`carga_horaria` como colunas inline.
 
-CREATE TYPE avalia_tipo AS ENUM (
-    'PROVA',
-    'TRABALHO',
-    'SEMINARIO',
-    'LISTA',
-    'OUTRO'
-);
-```
+- **universidade**: `id` PK · `nome` not null · `sigla` not null · `numero` · `cep` · `obs`
+- **departamento**: `id` PK · `sigla` not null · `nome` not null · `universidade_id` → `universidade(id)` · `numero` · `cep` · `obs`
+- **curso**: `id` PK · `sigla` not null · `nome` not null · `departamento_id` → `departamento(id)` · `ch_obrigatoria` · `ch_optativa` · `ch_nucleo_livre`
+- **disciplina**: `id` PK · `codigo` not null · `tipo` · `carga_horaria` integer not null · `pre_requisito` · `departamento_id` → `departamento(id)`
 
 ---
 
-### V002__create_core_tables.sql
+### V002__pessoas.sql
 
-```sql
-CREATE TABLE endereco (
-    id BIGINT PRIMARY KEY,
-    numero VARCHAR(20),
-    cep VARCHAR(9),
-    obs VARCHAR(255)
-);
+Herança JOINED: `aluno`/`professor`/`admin` têm `id` que é PK **e** FK → `pessoa(id)`.
 
-CREATE TABLE universidade (
-    id BIGINT PRIMARY KEY,
-    nome VARCHAR(150) NOT NULL,
-    sigla VARCHAR(20) NOT NULL,
-    endereco_id BIGINT NOT NULL,
-    CONSTRAINT fk_universidade_endereco
-        FOREIGN KEY (endereco_id)
-        REFERENCES endereco(id)
-);
-
-CREATE TABLE departamento (
-    id BIGINT PRIMARY KEY,
-    sigla VARCHAR(20) NOT NULL,
-    nome VARCHAR(150) NOT NULL,
-    universidade_id BIGINT NOT NULL,
-    endereco_id BIGINT NOT NULL,
-    CONSTRAINT fk_departamento_universidade
-        FOREIGN KEY (universidade_id)
-        REFERENCES universidade(id),
-    CONSTRAINT fk_departamento_endereco
-        FOREIGN KEY (endereco_id)
-        REFERENCES endereco(id)
-);
-
-CREATE TABLE carga_horaria (
-    id BIGINT PRIMARY KEY,
-    ch_obrigatoria INTEGER NOT NULL,
-    ch_optativa INTEGER NOT NULL,
-    ch_nucleo_livre INTEGER NOT NULL
-);
-
-CREATE TABLE curso (
-    id BIGINT PRIMARY KEY,
-    sigla VARCHAR(20) NOT NULL,
-    nome VARCHAR(150) NOT NULL,
-    departamento_id BIGINT NOT NULL,
-    carga_horaria_id BIGINT NOT NULL,
-    CONSTRAINT fk_curso_departamento
-        FOREIGN KEY (departamento_id)
-        REFERENCES departamento(id),
-    CONSTRAINT fk_curso_carga_horaria
-        FOREIGN KEY (carga_horaria_id)
-        REFERENCES carga_horaria(id)
-);
-```
+- **pessoa** (UUID): `id` PK · `nome` not null · `email` not null **unique** · `senha` not null · `role` varchar not null · `matricula` **unique** · `cpf` not null **unique** · `data_nascimento`
+- **aluno** (UUID): `id` PK e FK → `pessoa(id)` · `nota` numeric(4,2) · `frequencia` numeric(5,2) · `departamento_id` BIGINT not null → `departamento(id)`
+- **professor** (UUID): `id` PK e FK → `pessoa(id)` · `titulacao` · `departamento_id` BIGINT not null → `departamento(id)`
+- **admin** (UUID): `id` PK e FK → `pessoa(id)` (sem colunas próprias)
 
 ---
 
-### V003__create_people_tables.sql
+### V003__operacao_academica.sql
 
-```sql
-CREATE TABLE pessoa (
-    id UUID PRIMARY KEY,
-    nome VARCHAR(120) NOT NULL,
-    email VARCHAR(120) NOT NULL,
-    senha VARCHAR(255) NOT NULL,
-    role role NOT NULL,
-    matricula VARCHAR(20) NOT NULL,
-    cpf VARCHAR(14) NOT NULL,
-    data_nascimento DATE
-);
-
-CREATE TABLE aluno (
-    id UUID PRIMARY KEY,
-    departamento_id BIGINT NOT NULL,
-    nota DECIMAL(4,2),
-    frequencia DECIMAL(5,2),
-    CONSTRAINT fk_aluno_pessoa
-        FOREIGN KEY (id)
-        REFERENCES pessoa(id),
-    CONSTRAINT fk_aluno_departamento
-        FOREIGN KEY (departamento_id)
-        REFERENCES departamento(id)
-);
-
-CREATE TABLE professor (
-    id UUID PRIMARY KEY,
-    titulacao VARCHAR(60),
-    departamento_id BIGINT NOT NULL,
-    CONSTRAINT fk_professor_pessoa
-        FOREIGN KEY (id)
-        REFERENCES pessoa(id),
-    CONSTRAINT fk_professor_departamento
-        FOREIGN KEY (departamento_id)
-        REFERENCES departamento(id)
-);
-
-CREATE UNIQUE INDEX idx_pessoa_email
-    ON pessoa(email);
-
-CREATE UNIQUE INDEX idx_pessoa_cpf
-    ON pessoa(cpf);
-
-CREATE UNIQUE INDEX idx_pessoa_matricula
-    ON pessoa(matricula);
-```
+- **turma** (UUID): `id` PK · `codigo` not null · `horario` · `localidade` · `data_in` · `data_out` · `disciplina_id` BIGINT not null → `disciplina(id)` · `professor_id` UUID not null → `professor(id)`
+- **matriculado** (UUID): `id` PK · `nota` numeric(4,2) · `status` varchar · `frequencia` integer · `aluno_id` UUID not null → `aluno(id)` · `turma_id` UUID not null → `turma(id)` · **UNIQUE (aluno_id, turma_id)**
+- **arquivo** (UUID): `id` PK · `nome` not null · `caminho`
 
 ---
 
-### V004__create_academic_tables.sql
+### V004__avaliacoes_e_juncoes.sql
 
-```sql
-CREATE TABLE disciplina (
-    id BIGINT PRIMARY KEY,
-    codigo VARCHAR(20) NOT NULL,
-    tipo VARCHAR(40),
-    carga_horaria INTEGER,
-    pre_requisito VARCHAR(20),
-    departamento_id BIGINT NOT NULL,
-    CONSTRAINT fk_disciplina_departamento
-        FOREIGN KEY (departamento_id)
-        REFERENCES departamento(id)
-);
-
-CREATE TABLE curso_disciplina (
-    curso_id BIGINT NOT NULL,
-    disciplina_id BIGINT NOT NULL,
-
-    PRIMARY KEY (
-        curso_id,
-        disciplina_id
-    ),
-
-    CONSTRAINT fk_curso_disciplina_curso
-        FOREIGN KEY (curso_id)
-        REFERENCES curso(id),
-
-    CONSTRAINT fk_curso_disciplina_disciplina
-        FOREIGN KEY (disciplina_id)
-        REFERENCES disciplina(id)
-);
-
-CREATE TABLE turma (
-    id UUID PRIMARY KEY,
-    codigo VARCHAR(30),
-    horario VARCHAR(60),
-    localidade VARCHAR(120),
-    data_in DATE,
-    data_out DATE,
-    disciplina_id BIGINT NOT NULL,
-    professor_id UUID NOT NULL,
-
-    CONSTRAINT fk_turma_disciplina
-        FOREIGN KEY (disciplina_id)
-        REFERENCES disciplina(id),
-
-    CONSTRAINT fk_turma_professor
-        FOREIGN KEY (professor_id)
-        REFERENCES professor(id)
-);
-
-CREATE TABLE matriculado (
-    id UUID PRIMARY KEY,
-    aluno_id UUID NOT NULL,
-    turma_id UUID NOT NULL,
-    nota DECIMAL(4,2),
-    frequencia INTEGER,
-    status matricula_status,
-
-    CONSTRAINT fk_matriculado_aluno
-        FOREIGN KEY (aluno_id)
-        REFERENCES aluno(id),
-
-    CONSTRAINT fk_matriculado_turma
-        FOREIGN KEY (turma_id)
-        REFERENCES turma(id)
-);
-
-CREATE INDEX idx_turma_disciplina
-    ON turma(disciplina_id);
-
-CREATE INDEX idx_turma_professor
-    ON turma(professor_id);
-
-CREATE INDEX idx_matriculado_aluno
-    ON matriculado(aluno_id);
-
-CREATE INDEX idx_matriculado_turma
-    ON matriculado(turma_id);
-```
+- **avalia** (UUID): `id` PK · `status` varchar · `descricao` · `nota` numeric(4,2) · `tipo` varchar · `data_in` · `data_out` · `matriculado_id` UUID not null → `matriculado(id)`
+- **curso_disciplina** (junção N:M): `curso_id` BIGINT → `curso(id)` · `disciplina_id` BIGINT → `disciplina(id)` · PK (`curso_id`, `disciplina_id`)
+- **avalia_anexo** (junção N:M): `avalia_id` UUID → `avalia(id)` · `arquivo_id` UUID → `arquivo(id)` · PK (`avalia_id`, `arquivo_id`)
 
 ---
 
-### V005__create_assessment_tables.sql
+### V005__seed.sql (opcional)
 
-```sql
-CREATE TABLE avalia (
-    id UUID PRIMARY KEY,
-    matriculado_id UUID NOT NULL,
-    tipo avalia_tipo NOT NULL,
-    descricao VARCHAR(255),
-    nota DECIMAL(4,2),
-    status VARCHAR(40),
-    data_in DATE,
-    data_out DATE,
+Seed para demonstração em banca. Lembre que agora `endereco` e `carga_horaria` são **colunas inline** (não tabelas), então os INSERTs preenchem `numero/cep/obs` direto em `universidade`/`departamento` e `ch_*` direto em `curso`. Os IDs BIGINT (universidade/departamento/curso/disciplina) podem ser informados na mão; os UUID são gerados pela aplicação.
 
-    CONSTRAINT fk_avalia_matriculado
-        FOREIGN KEY (matriculado_id)
-        REFERENCES matriculado(id)
-);
-
-CREATE TABLE avalia_arquivo (
-    id BIGINT PRIMARY KEY,
-    avalia_id UUID NOT NULL,
-    caminho VARCHAR(500),
-
-    CONSTRAINT fk_avalia_arquivo_avalia
-        FOREIGN KEY (avalia_id)
-        REFERENCES avalia(id)
-);
-
-CREATE INDEX idx_avalia_matriculado
-    ON avalia(matriculado_id);
-
-CREATE INDEX idx_avalia_arquivo_avalia
-    ON avalia_arquivo(avalia_id);
-```
-
----
-
-### V006__seed_data.sql
-
-```sql
--- Seed opcional para demonstração em banca.
-
-INSERT INTO endereco (
-    id,
-    numero,
-    cep,
-    obs
-)
-VALUES (
-    1,
-    '100',
-    '74000-000',
-    'Campus Principal'
-);
-
-INSERT INTO universidade (
-    id,
-    nome,
-    sigla,
-    endereco_id
-)
-VALUES (
-    1,
-    'Universidade Federal',
-    'UFG',
-    1
-);
-
-INSERT INTO departamento (
-    id,
-    sigla,
-    nome,
-    universidade_id,
-    endereco_id
-)
-VALUES (
-    1,
-    'INF',
-    'Instituto de Informatica',
-    1,
-    1
-);
-
-INSERT INTO carga_horaria (
-    id,
-    ch_obrigatoria,
-    ch_optativa,
-    ch_nucleo_livre
-)
-VALUES (
-    1,
-    2400,
-    300,
-    200
-);
-
-INSERT INTO curso (
-    id,
-    sigla,
-    nome,
-    departamento_id,
-    carga_horaria_id
-)
-VALUES (
-    1,
-    'BCC',
-    'Bacharelado em Ciencia da Computacao',
-    1,
-    1
-);
-```
+Exemplo de campos a popular:
+- **universidade**: `nome`, `sigla`, `numero`, `cep`, `obs`
+- **departamento**: `sigla`, `nome`, `universidade_id`, `numero`, `cep`, `obs`
+- **curso**: `sigla`, `nome`, `departamento_id`, `ch_obrigatoria`, `ch_optativa`, `ch_nucleo_livre`
+- **disciplina**: `codigo`, `carga_horaria`, `departamento_id`
 
 ---
 
 ### Checklist
 
-- [ ] Criar arquivo `V001__create_enums.sql`
-- [ ] Criar arquivo `V002__create_core_tables.sql`
-- [ ] Criar arquivo `V003__create_people_tables.sql`
-- [ ] Criar arquivo `V004__create_academic_tables.sql`
-- [ ] Criar arquivo `V005__create_assessment_tables.sql`
-- [ ] Criar arquivo `V006__seed_data.sql`
+- [ ] Criar arquivo `V001__estrutura_institucional.sql`
+- [ ] Criar arquivo `V002__pessoas.sql`
+- [ ] Criar arquivo `V003__operacao_academica.sql`
+- [ ] Criar arquivo `V004__avaliacoes_e_juncoes.sql`
+- [ ] Criar arquivo `V005__seed.sql` (opcional)
 - [ ] Salvar em `src/main/resources/db/migration/`
-- [ ] Validar execução completa do Flyway
-- [ ] Executar migrations em banco limpo
+- [ ] Gerar o DDL do Hibernate e conferir nomes de coluna/FK e a coluna de soft delete
+- [ ] Validar execução completa do Flyway em banco limpo
 - [ ] Verificar todas as Foreign Keys
-- [ ] Verificar tipos UUID e BIGINT conforme modelo
-- [ ] Verificar enums PostgreSQL
-- [ ] Validar índices criados
+- [ ] Verificar tipos UUID e BIGINT conforme `database.dbml`
+- [ ] Conferir a unique `(aluno_id, turma_id)` em `matriculado`
+- [ ] Rodar a app com `ddl-auto=validate` (entidade ↔ schema casam)
 - [ ] Documentar schema no README
-- [ ] Garantir aderência total ao modelo do PDF
 
 ### Critérios Atendidos
 
@@ -743,28 +465,21 @@ VALUES (
 
 ### Observações Técnicas
 
-- O modelo utiliza UUID apenas para:
-  - pessoa
-  - aluno
-  - professor
-  - turma
-  - matriculado
-  - avalia
+- IDs **UUID**: pessoa, aluno, professor, admin, turma, matriculado, avalia, arquivo.
 
-- O modelo utiliza BIGINT para:
-  - universidade
-  - departamento
-  - endereco
-  - curso
-  - carga_horaria
-  - disciplina
-  - avalia_arquivo
+- IDs **BIGINT** (identity): universidade, departamento, curso, disciplina.
 
-- A tabela `curso_disciplina` é a única relação N:N do modelo.
+- `endereco` e `carga_horaria` **não são tabelas** — são colunas inline (`@Embeddable`).
 
-- A herança Pessoa → Aluno/Professor deve ser implementada via chave primária compartilhada (`PK = FK`).
+- Relações **N:M**: `curso_disciplina` (Curso × Disciplina) e `avalia_anexo` (Avalia × Arquivo).
 
-- Esta migration deve permanecer aderente ao PDF mesmo que futuras regras de negócio adicionem novos atributos.
+- Herança Pessoa → Aluno/Professor/Admin via chave compartilhada (`PK = FK`, estratégia JOINED).
+
+- Enums (`role`, `status`, `tipo`) gravados como `VARCHAR` via `@Enumerated(STRING)` — **sem** `CREATE TYPE`.
+
+- Soft delete via `@SoftDelete`: cada tabela de entidade carrega a coluna booleana de exclusão lógica.
+
+- Fonte de verdade: `docs/database.dbml` + entidades em `com.sga.model`.
 
 ---
 
