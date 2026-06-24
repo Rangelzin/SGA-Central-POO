@@ -30,11 +30,11 @@ public class Turma {
     private LocalDate dataIn;
     private LocalDate dataOut;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Disciplina disciplina;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Professor professor;
-    @OneToMany(mappedBy = "turma", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "turma")
     private List<Matriculado> matriculados = new ArrayList<>();
 
     public Matriculado adicionarAluno(Aluno aluno){

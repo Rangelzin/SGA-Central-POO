@@ -28,7 +28,7 @@ public class Curso {
     @Embedded
     private CargaHoraria cargaHoraria;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Departamento departamento;
     @ManyToMany
     @JoinTable(

@@ -18,9 +18,9 @@ public class Professor extends Pessoa {
     @NotBlank
     private String titulacao;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Departamento departamento;
-    @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "professor")
     private List<Turma> turmas = new ArrayList<>();
 
     public void registrarNota(Matriculado m, Double nota){}

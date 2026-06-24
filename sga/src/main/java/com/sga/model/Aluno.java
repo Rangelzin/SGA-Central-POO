@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +15,12 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "aluno")
 public class Aluno extends Pessoa{
-    private Double nota;
-    private Double frequencia;
+    private BigDecimal nota;
+    private BigDecimal frequencia;
 
-    @OneToMany(mappedBy = "aluno", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "aluno")
     private List<Matriculado> matriculas = new ArrayList<>();
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Departamento departamento;
 
     public Matriculado realizarMatricula(Turma turma){

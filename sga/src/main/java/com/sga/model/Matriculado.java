@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SoftDelete;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,16 +23,16 @@ public class Matriculado {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private Double nota;
+    private BigDecimal nota;
     @Enumerated(EnumType.STRING)
     private StatusMatricula status;
     private Integer frequencia;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Aluno aluno;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Turma turma;
-    @OneToMany(mappedBy = "matriculado", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "matriculado")
     private List<Avalia> avaliacoes = new ArrayList<>();
 
     public Double calcularMedia(){
