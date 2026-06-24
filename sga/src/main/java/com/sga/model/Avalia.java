@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SoftDelete;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,20 +26,20 @@ public class Avalia {
 
     private String status;
     private String descricao;
-    private Double nota;
+    private BigDecimal nota;
     @Enumerated(EnumType.STRING)
     private TipoAvaliacao tipo;
     private LocalDate dataIn;
     private LocalDate dataOut;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(
             name = "avalia_anexo",
             joinColumns = @JoinColumn(name = "avalia_id"),
             inverseJoinColumns = @JoinColumn(name = "arquivo_id")
     )
     private List<Arquivo> arquivos = new ArrayList<>();
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Matriculado matriculado;
 
     public void registrar(Double nota, String tipo){}

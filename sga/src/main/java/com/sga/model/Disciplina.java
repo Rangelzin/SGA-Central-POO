@@ -29,11 +29,11 @@ public class Disciplina {
     private Integer cargaHoraria;
     private String preRequisito;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Departamento departamento;
-    @ManyToMany(mappedBy = "disciplinas", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "disciplinas")
     private List<Curso> cursos = new ArrayList<>();
-    @OneToMany(mappedBy = "disciplina", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "disciplina")
     private List<Turma> turmas = new ArrayList<>();
 
     public List<Turma> listarTurma(){

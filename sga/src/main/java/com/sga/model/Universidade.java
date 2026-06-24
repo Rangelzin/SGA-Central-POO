@@ -28,7 +28,7 @@ public class Universidade {
     @Embedded
     private Endereco endereco;
 
-    @OneToMany(mappedBy = "universidade", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "universidade")
     private List<Departamento> departamentos = new ArrayList<>();
 
     public List<Departamento> listarDepartamentos(){

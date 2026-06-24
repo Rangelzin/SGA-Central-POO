@@ -28,13 +28,13 @@ public class Departamento {
     @Embedded
     private Endereco endereco;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Universidade universidade;
-    @OneToMany(mappedBy = "departamento", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "departamento")
     private List<Professor> professores = new ArrayList<>();
-    @OneToMany(mappedBy = "departamento", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "departamento")
     private List<Curso> cursos = new ArrayList<>();
-    @OneToMany(mappedBy = "departamento", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "departamento")
     private List<Disciplina> disciplinas = new ArrayList<>();
 
     public List<Professor> listarProfessores(){
