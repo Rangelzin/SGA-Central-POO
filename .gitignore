@@ -39,3 +39,5 @@ out/
 
 ## Environments ##
 .env
+*.pem
+*.pub
