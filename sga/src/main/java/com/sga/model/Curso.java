@@ -5,20 +5,21 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SoftDelete;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@SoftDelete
 @Table(name = "curso")
 public class Curso {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank
     private String sigla;
@@ -27,13 +28,13 @@ public class Curso {
     @Embedded
     private CargaHoraria cargaHoraria;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Departamento departamento;
     @ManyToMany
     @JoinTable(
             name = "curso_disciplina",
-            joinColumns = @JoinColumn(name = "curso_uuid"),
-            inverseJoinColumns = @JoinColumn(name = "disciplina_uuid")
+            joinColumns = @JoinColumn(name = "curso_id"),
+            inverseJoinColumns = @JoinColumn(name = "disciplina_id")
 
     )
     private List<Disciplina> disciplinas = new ArrayList<>();

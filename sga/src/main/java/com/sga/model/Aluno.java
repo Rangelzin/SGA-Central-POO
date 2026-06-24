@@ -1,8 +1,6 @@
 package com.sga.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -18,8 +16,11 @@ import java.util.List;
 public class Aluno extends Pessoa{
     private Double nota;
     private Double frequencia;
-    @OneToMany(mappedBy = "aluno")
+
+    @OneToMany(mappedBy = "aluno", fetch = FetchType.LAZY)
     private List<Matriculado> matriculas = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Departamento departamento;
 
     public Matriculado realizarMatricula(Turma turma){
         return null;

@@ -1,9 +1,11 @@
 package com.sga.model;
 
+import com.sga.model.enums.StatusMatricula;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SoftDelete;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,21 +15,23 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@SoftDelete
 @Table(name = "matriculado")
 public class Matriculado {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    private UUID id;
 
     private Double nota;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private StatusMatricula status;
     private Integer frequencia;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Aluno aluno;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Turma turma;
-    @OneToMany(mappedBy = "matriculado")
+    @OneToMany(mappedBy = "matriculado", fetch = FetchType.LAZY)
     private List<Avalia> avaliacoes = new ArrayList<>();
 
     public Double calcularMedia(){

@@ -17,9 +17,10 @@ import java.util.List;
 public class Professor extends Pessoa {
     @NotBlank
     private String titulacao;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private Departamento departamento;
-    @OneToMany(mappedBy = "professor")
+    @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY)
     private List<Turma> turmas = new ArrayList<>();
 
     public void registrarNota(Matriculado m, Double nota){}

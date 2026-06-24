@@ -1,72 +1,71 @@
 // =====================================================================
 // SGA - Sistema de Gestão Acadêmica
-// Modelo físico de dados (DBML) — derivado de docs/Diagrama-de-classes.puml
+// Modelo físico de dados (DBML) — MODELO CANÔNICO
 //
 // Visualize/edite em: https://dbdiagram.io
 //
-// Notas de modelagem:
-//  - Pessoa é @MappedSuperclass: NÃO existe tabela "pessoa". Suas colunas
-//    são replicadas em aluno, professor e admin (table-per-concrete-class).
-//  - Endereco e CargaHoraria são @Embeddable: viram COLUNAS nas tabelas
-//    donas (universidade, departamento, curso), não tabelas próprias.
-//  - matriculado é a entidade de junção Aluno x Turma (associação N:M com
-//    atributos). curso_disciplina é a junção pura do N:M Curso x Disciplina.
-//  - avalia_arquivos materializa o @ElementCollection List<String> de Avalia.
+// Decisões de arquitetura (fonte única da verdade; puml e migrations
+// devem seguir este modelo):
+//  - Herança JOINED: existe a tabela "pessoa"; aluno/professor/admin
+//    têm id que é PK e ao mesmo tempo FK -> pessoa.id.
+//  - PK chamada "id" em todas as tabelas.
+//  - IDs MISTOS: UUID para pessoa/aluno/professor/admin/turma/
+//    matriculado/avalia/arquivo; BIGINT para universidade/departamento/
+//    curso/disciplina.
+//  - Endereco e CargaHoraria são @Embeddable: viram COLUNAS inline nas
+//    tabelas donas (universidade, departamento, curso), não tabelas.
+//  - Enums (role, status, tipo) mapeados como varchar via
+//    @Enumerated(EnumType.STRING).
+//  - matriculado = junção Aluno x Turma com atributos (associação N:M).
+//  - curso_disciplina = junção pura do N:M Curso x Disciplina.
+//  - Arquivo é @Entity própria (Modelo B); a relação Avalia x Arquivo
+//    é N:M, materializada na junção avalia_anexo.
 //  - Nomes de colunas em snake_case (naming strategy padrão do Hibernate).
 // =====================================================================
 
 Project sga {
   database_type: 'PostgreSQL'
-  Note: 'Sistema de Gestão Acadêmica — esquema gerado a partir do diagrama de classes.'
+  Note: 'Sistema de Gestão Acadêmica — modelo canônico (herança JOINED, IDs mistos UUID/BIGINT).'
 }
 
 // ---------------------------------------------------------------------
-// Pessoas (herdam os campos de Pessoa via @MappedSuperclass)
+// Pessoas (herança JOINED: tabela base + tabelas filhas com PK = FK)
 // ---------------------------------------------------------------------
 
-Table aluno {
-  uuid             uuid           [pk]
+Table pessoa {
+  id               uuid           [pk]
   nome             varchar(120)   [not null]
   email            varchar(255)   [not null, unique]
   senha            varchar(255)   [not null]
-  role             varchar(50)
-  matricula        varchar(20)
+  role             varchar(50)    [not null, note: '@Enumerated(STRING)']
+  matricula        varchar(20)    [unique]
   cpf              varchar(14)    [not null, unique]
-  data_nascimento  date           [not null]
-  nota             float8        [note: 'média geral do aluno']
-  frequencia       float8
+  data_nascimento  date
+}
+
+Table aluno {
+  id               uuid           [pk, note: 'PK = FK -> pessoa.id (JOINED)']
+  nota             numeric(4,2)   [note: 'média geral do aluno']
+  frequencia       numeric(5,2)
+  departamento_id  bigint         [not null]
 }
 
 Table professor {
-  uuid             uuid           [pk]
-  nome             varchar(120)   [not null]
-  email            varchar(255)   [not null, unique]
-  senha            varchar(255)   [not null]
-  role             varchar(50)
-  matricula        varchar(20)
-  cpf              varchar(14)    [not null, unique]
-  data_nascimento  date           [not null]
+  id               uuid           [pk, note: 'PK = FK -> pessoa.id (JOINED)']
   titulacao        varchar(100)
-  departamento_id  uuid           [note: 'FK -> departamento; professor pertence a 1 departamento']
+  departamento_id  bigint         [not null]
 }
 
 Table admin {
-  uuid             uuid           [pk]
-  nome             varchar(120)   [not null]
-  email            varchar(255)   [not null, unique]
-  senha            varchar(255)   [not null]
-  role             varchar(50)
-  matricula        varchar(20)
-  cpf              varchar(14)    [not null, unique]
-  data_nascimento  date           [not null]
+  id               uuid           [pk, note: 'PK = FK -> pessoa.id (JOINED); sem colunas próprias']
 }
 
 // ---------------------------------------------------------------------
-// Estrutura institucional
+// Estrutura institucional (IDs BIGINT)
 // ---------------------------------------------------------------------
 
 Table universidade {
-  uuid             uuid           [pk]
+  id               bigint         [pk, increment]
   nome             varchar(255)   [not null]
   sigla            varchar(50)    [not null]
   // @Embedded Endereco
@@ -76,10 +75,10 @@ Table universidade {
 }
 
 Table departamento {
-  uuid             uuid           [pk]
+  id               bigint         [pk, increment]
   sigla            varchar(50)    [not null]
   nome             varchar(255)   [not null]
-  universidade_id  uuid
+  universidade_id  bigint         [not null]
   // @Embedded Endereco
   numero           varchar(20)
   cep              varchar(9)
@@ -87,10 +86,10 @@ Table departamento {
 }
 
 Table curso {
-  uuid             uuid           [pk]
+  id               bigint         [pk, increment]
   sigla            varchar(50)    [not null]
   nome             varchar(255)   [not null]
-  departamento_id  uuid
+  departamento_id  bigint         [not null]
   // @Embedded CargaHoraria
   ch_obrigatoria   integer
   ch_optativa      integer
@@ -98,36 +97,36 @@ Table curso {
 }
 
 Table disciplina {
-  uuid             uuid           [pk]
+  id               bigint         [pk, increment]
   codigo           varchar(50)    [not null]
   tipo             varchar(50)
   carga_horaria    integer        [not null]
   pre_requisito    varchar(255)
-  departamento_id  uuid
+  departamento_id  bigint         [not null]
 }
 
 // ---------------------------------------------------------------------
-// Operação acadêmica (turmas, matrículas e avaliações)
+// Operação acadêmica (turmas, matrículas e avaliações — IDs UUID)
 // ---------------------------------------------------------------------
 
 Table turma {
-  uuid             uuid           [pk]
+  id               uuid           [pk]
   codigo           varchar(50)    [not null]
   horario          varchar(100)
   localidade       varchar(100)
   data_in          date
   data_out         date
-  disciplina_id    uuid
-  professor_id     uuid
+  disciplina_id    bigint         [not null]
+  professor_id     uuid           [not null]
 }
 
 Table matriculado {
-  uuid             uuid           [pk]
-  nota             float8
-  status           varchar(50)
+  id               uuid           [pk]
+  nota             numeric(4,2)
+  status           varchar(50)    [note: '@Enumerated(STRING)']
   frequencia       integer
-  aluno_id         uuid
-  turma_id         uuid
+  aluno_id         uuid           [not null]
+  turma_id         uuid           [not null]
 
   indexes {
     (aluno_id, turma_id) [unique, name: 'uq_matriculado_aluno_turma']
@@ -135,23 +134,30 @@ Table matriculado {
 }
 
 Table avalia {
-  uuid             uuid           [pk]
+  id               uuid           [pk]
   status           varchar(50)
   descricao        varchar(255)
-  nota             float8
-  tipo             varchar(50)
+  nota             numeric(4,2)
+  tipo             varchar(50)    [note: '@Enumerated(STRING)']
   data_in          date
   data_out         date
-  matriculado_id   uuid
+  matriculado_id   uuid           [not null]
+}
+
+Table arquivo {
+  id               uuid           [pk]
+  nome             varchar(255)   [not null]
+  caminho          varchar(512)
+  Note: '@Entity própria (Modelo B): arquivo reutilizável entre avaliações.'
 }
 
 // ---------------------------------------------------------------------
-// Tabelas auxiliares (N:M e coleções de elementos)
+// Tabelas de junção (N:M)
 // ---------------------------------------------------------------------
 
 Table curso_disciplina {
-  curso_id         uuid           [not null]
-  disciplina_id    uuid           [not null]
+  curso_id         bigint         [not null]
+  disciplina_id    bigint         [not null]
 
   indexes {
     (curso_id, disciplina_id) [pk]
@@ -159,29 +165,40 @@ Table curso_disciplina {
   Note: 'Junção N:M entre Curso e Disciplina (@ManyToMany).'
 }
 
-Table avalia_arquivos {
-  avalia_id        uuid           [not null]
-  arquivo          varchar(512)   [not null]
-  Note: 'Materializa o @ElementCollection List<String> arquivos de Avalia.'
+Table avalia_anexo {
+  avalia_id          uuid         [not null]
+  arquivo_id         uuid         [not null]
+
+  indexes {
+    (avalia_id, arquivo_id) [pk]
+  }
+  Note: 'Junção N:M entre Avalia e Arquivo (@ManyToMany — Modelo B).'
 }
 
 // ---------------------------------------------------------------------
 // Relacionamentos (FKs)
 // ---------------------------------------------------------------------
 
-Ref: professor.departamento_id   > departamento.uuid
-Ref: departamento.universidade_id > universidade.uuid
-Ref: curso.departamento_id       > departamento.uuid
-Ref: disciplina.departamento_id  > departamento.uuid
+// Herança JOINED: filhas referenciam a base por id (PK = FK)
+Ref: aluno.id                     > pessoa.id
+Ref: professor.id                 > pessoa.id
+Ref: admin.id                     > pessoa.id
 
-Ref: turma.disciplina_id         > disciplina.uuid
-Ref: turma.professor_id          > professor.uuid
+Ref: aluno.departamento_id        > departamento.id
+Ref: professor.departamento_id    > departamento.id
+Ref: departamento.universidade_id > universidade.id
+Ref: curso.departamento_id        > departamento.id
+Ref: disciplina.departamento_id   > departamento.id
 
-Ref: matriculado.aluno_id        > aluno.uuid
-Ref: matriculado.turma_id        > turma.uuid
-Ref: avalia.matriculado_id       > matriculado.uuid
+Ref: turma.disciplina_id          > disciplina.id
+Ref: turma.professor_id           > professor.id
 
-Ref: curso_disciplina.curso_id   > curso.uuid
-Ref: curso_disciplina.disciplina_id > disciplina.uuid
+Ref: matriculado.aluno_id         > aluno.id
+Ref: matriculado.turma_id         > turma.id
+Ref: avalia.matriculado_id        > matriculado.id
 
-Ref: avalia_arquivos.avalia_id   > avalia.uuid
+Ref: curso_disciplina.curso_id        > curso.id
+Ref: curso_disciplina.disciplina_id   > disciplina.id
+
+Ref: avalia_anexo.avalia_id           > avalia.id
+Ref: avalia_anexo.arquivo_id          > arquivo.id

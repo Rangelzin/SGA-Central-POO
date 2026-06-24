@@ -1,20 +1,38 @@
 @startuml Diagrama de Classes
 
+' =====================================================================
+' SGA - Diagrama de Classes (MODELO CANÔNICO — ver docs/database.dbml)
+'  - Herança JOINED: Pessoa abstrata; Aluno/Professor/Admin.
+'  - IDs: UUID em Pessoa/Aluno/Professor/Admin/Turma/Matriculado/
+'    Avalia/Arquivo; Long (BIGINT) em Universidade/Departamento/Curso/
+'    Disciplina.
+'  - Endereco e CargaHoraria são value objects (@Embeddable).
+'  - Enums Role/StatusMatricula/TipoAvaliacao mapeados via
+'    @Enumerated(STRING).
+'  - Arquivo é entidade própria; Avalia x Arquivo é N:M (Modelo B).
+' =====================================================================
+
 abstract class Pessoa {
-    - uuid : UUID
+    - id : UUID
     - nome : String
     - email : String
     - senha : String
-    - role : String
+    - role : Role
     - matricula : String
     - cpf : String
     - dataNascimento : LocalDate
     +autenticar(email: String, senha: String): boolean
     +getNome(): String
     +getEmail(): String
-    +getRole(): String
+    +getRole(): Role
     +getMatricula(): String
     +getCpf(): String
+}
+
+enum Role {
+    ALUNO
+    PROFESSOR
+    ADMIN
 }
 
 class Aluno {
@@ -42,7 +60,7 @@ class Admin {
 }
 
 class Turma {
-    - uuid : UUID
+    - id : UUID
     - codigo : String
     - horario : String
     - localidade : String
@@ -57,9 +75,9 @@ class Turma {
 }
 
 class Matriculado {
-    - uuid : UUID
+    - id : UUID
     - nota : Double
-    - status : String
+    - status : StatusMatricula
     - frequencia : Integer
     +calcularMedia(): Double
     +calcularSituacao(): String
@@ -67,20 +85,43 @@ class Matriculado {
     +isAprovado(): boolean
 }
 
+enum StatusMatricula {
+    ATIVA
+    TRANCADA
+    CANCELADA
+    APROVADO
+    REPROVADO
+}
+
 class Avalia {
+    - id : UUID
     - status : String
     - descricao : String
     - nota : Double
-    - tipo : String
+    - tipo : TipoAvaliacao
     - dataIn : LocalDate
     - dataOut : LocalDate
-    - arquivos : List<String>
-    +registrar(nota: Double, tipo: String): void
+    +registrar(nota: Double, tipo: TipoAvaliacao): void
     +calcularPeso(): Double
     +getNota(): Double
 }
 
+enum TipoAvaliacao {
+    PROVA
+    TRABALHO
+    SEMINARIO
+    LISTA
+    OUTRO
+}
+
+class Arquivo {
+    - id : UUID
+    - nome : String
+    - caminho : String
+}
+
 class Disciplina {
+    - id : Long
     - codigo : String
     - tipo : String
     - cargaHoraria : Integer
@@ -92,6 +133,7 @@ class Disciplina {
 }
 
 class Curso {
+    - id : Long
     - sigla : String
     - nome : String
     +listarDisciplinas(): List<Disciplina>
@@ -99,7 +141,7 @@ class Curso {
     +getNome(): String
 }
 
-class CargaHoraria {
+class CargaHoraria <<value object>> {
     - chObrigatoria : Integer
     - chOptativa : Integer
     - chNucleoLivre : Integer
@@ -107,6 +149,7 @@ class CargaHoraria {
 }
 
 class Departamento {
+    - id : Long
     - sigla : String
     - nome : String
     +listarProfessores(): List<Professor>
@@ -115,27 +158,31 @@ class Departamento {
 }
 
 class Universidade {
+    - id : Long
     - nome : String
     - sigla : String
     +listarDepartamentos(): List<Departamento>
     +getNome(): String
 }
 
-class Endereco {
+class Endereco <<value object>> {
     - numero : String
     - cep : String
     - obs : String
     +getEnderecoCompleto(): String
 }
 
+' Herança JOINED
 Pessoa <|-- Aluno
 Pessoa <|-- Professor
 Pessoa <|-- Admin
 
+' Value objects (@Embeddable)
 Universidade "1" *-- "1" Endereco
 Departamento "1" *-- "1" Endereco
 Curso "1" *-- "1" CargaHoraria
 
+' Estrutura institucional
 Universidade "1" --> "1..*" Departamento : tem
 Departamento "1" --> "1..*" Curso : possui
 Departamento "1" --> "1..*" Disciplina : possui
@@ -144,11 +191,15 @@ Disciplina "1" --> "0..*" Turma : possui
 
 Professor "1" --> "1" Departamento : pertence a
 Professor "1" --> "0..*" Turma : ministra
+Aluno "1..*" --> "1" Departamento : pertence a
 
 ' Associação N:M entre Aluno e Turma resolvida pela classe de associação Matriculado.
 ' Avalia pertence a uma matrícula (Matriculado), não diretamente a (Aluno, Turma).
 Aluno "0..*" -- "0..*" Turma
 (Aluno, Turma) .. Matriculado
 Matriculado "1" *-- "0..*" Avalia : possui
+
+' N:M Avalia x Arquivo (Modelo B — arquivo reutilizável)
+Avalia "0..*" -- "0..*" Arquivo : anexa
 
 @enduml
