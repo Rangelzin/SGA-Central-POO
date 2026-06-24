@@ -6,20 +6,21 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SoftDelete;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
+@SoftDelete
 @NoArgsConstructor
 @Table(name = "disciplina")
 public class Disciplina {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank
     private String codigo;
@@ -28,11 +29,11 @@ public class Disciplina {
     private Integer cargaHoraria;
     private String preRequisito;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Departamento departamento;
-    @ManyToMany(mappedBy = "disciplinas")
+    @ManyToMany(mappedBy = "disciplinas", fetch = FetchType.LAZY)
     private List<Curso> cursos = new ArrayList<>();
-    @OneToMany(mappedBy = "disciplina")
+    @OneToMany(mappedBy = "disciplina", fetch = FetchType.LAZY)
     private List<Turma> turmas = new ArrayList<>();
 
     public List<Turma> listarTurma(){

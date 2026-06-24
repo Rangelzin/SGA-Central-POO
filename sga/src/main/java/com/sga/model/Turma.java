@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SoftDelete;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,11 +16,12 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@SoftDelete
 @Table(name = "turma")
 public class Turma {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    private UUID id;
 
     @NotBlank
     private String codigo;
@@ -28,11 +30,11 @@ public class Turma {
     private LocalDate dataIn;
     private LocalDate dataOut;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Disciplina disciplina;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Professor professor;
-    @OneToMany(mappedBy = "turma")
+    @OneToMany(mappedBy = "turma", fetch = FetchType.LAZY)
     private List<Matriculado> matriculados = new ArrayList<>();
 
     public Matriculado adicionarAluno(Aluno aluno){
