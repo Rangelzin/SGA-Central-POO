@@ -11,10 +11,8 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
-    // As regras de negócio do mock leem estes valores no load dos módulos
     env: {
       NEXT_PUBLIC_API_BASE_URL: "http://localhost/api",
-      NEXT_PUBLIC_ENABLE_MOCKS: "true",
     },
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
   },

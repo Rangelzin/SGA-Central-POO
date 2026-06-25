@@ -13,7 +13,7 @@ export function useEnroll() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: EnrollmentInput) =>
-      api.post<Enrollment>("/enrollments", input).then((r) => r.data),
+      api.post<Enrollment>("/matriculas", input).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: classKeys.all });
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
@@ -26,7 +26,7 @@ export function useEnroll() {
 export function useCancelEnrollment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/enrollments/${id}`),
+    mutationFn: (id: string) => api.delete(`/matriculas/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: classKeys.all });
       queryClient.invalidateQueries({ queryKey: studentKeys.all });

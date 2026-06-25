@@ -16,14 +16,14 @@ export function useSubjects(query: ListQuery) {
   return useQuery({
     queryKey: subjectKeys.list(query),
     queryFn: () =>
-      api.get<Page<Subject>>("/subjects", { params: query }).then((r) => r.data),
+      api.get<Page<Subject>>("/disciplinas", { params: query }).then((r) => r.data),
   });
 }
 
 export function useSubject(id: string | undefined) {
   return useQuery({
     queryKey: subjectKeys.detail(id ?? ""),
-    queryFn: () => api.get<Subject>(`/subjects/${id}`).then((r) => r.data),
+    queryFn: () => api.get<Subject>(`/disciplinas/${id}`).then((r) => r.data),
     enabled: Boolean(id),
   });
 }
@@ -32,7 +32,7 @@ export function useCreateSubject() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: SubjectInput) =>
-      api.post<Subject>("/subjects", input).then((r) => r.data),
+      api.post<Subject>("/disciplinas", input).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: subjectKeys.all });
       toast.success("Disciplina criada com sucesso.");
@@ -45,7 +45,7 @@ export function useUpdateSubject(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: SubjectInput) =>
-      api.put<Subject>(`/subjects/${id}`, input).then((r) => r.data),
+      api.put<Subject>(`/disciplinas/${id}`, input).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: subjectKeys.all });
       toast.success("Disciplina atualizada com sucesso.");
@@ -54,12 +54,11 @@ export function useUpdateSubject(id: string) {
   });
 }
 
-// RF-03: ativação exige professor responsável (validada no backend/mock)
 export function useActivateSubject() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
-      api.post<Subject>(`/subjects/${id}/activate`).then((r) => r.data),
+      api.post<Subject>(`/disciplinas/${id}/ativar`).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: subjectKeys.all });
       toast.success("Disciplina ativada.");
@@ -71,7 +70,7 @@ export function useActivateSubject() {
 export function useDeleteSubject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/subjects/${id}`),
+    mutationFn: (id: string) => api.delete(`/disciplinas/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: subjectKeys.all });
       toast.success("Disciplina removida.");

@@ -24,7 +24,7 @@ export function useSetGrade(classId: string) {
   return useMutation({
     mutationFn: ({ enrollmentId, grade }: { enrollmentId: string; grade: number }) =>
       api
-        .put<Enrollment>(`/enrollments/${enrollmentId}/grade`, { grade })
+        .put<Enrollment>(`/matriculados/${enrollmentId}/nota`, { nota: grade })
         .then((r) => r.data),
     onSuccess: () => {
       invalidate();
@@ -45,7 +45,7 @@ export function useSetAttendance(classId: string) {
       attendance: number;
     }) =>
       api
-        .put<Enrollment>(`/enrollments/${enrollmentId}/attendance`, { attendance })
+        .put<Enrollment>(`/matriculados/${enrollmentId}/frequencia`, { frequencia: attendance })
         .then((r) => r.data),
     onSuccess: () => {
       invalidate();
@@ -66,7 +66,7 @@ export function useAddAssessment(classId: string) {
       input: AssessmentInput;
     }) =>
       api
-        .post<Enrollment>(`/enrollments/${enrollmentId}/assessments`, input)
+        .post<Enrollment>(`/avaliacoes/matriculado/${enrollmentId}`, input)
         .then((r) => r.data),
     onSuccess: () => {
       invalidate();
@@ -89,7 +89,7 @@ export function useUpdateAssessment(classId: string) {
       input: AssessmentInput;
     }) =>
       api
-        .put<Enrollment>(`/enrollments/${enrollmentId}/assessments/${assessmentId}`, input)
+        .put<Enrollment>(`/avaliacoes/${assessmentId}`, input)
         .then((r) => r.data),
     onSuccess: () => {
       invalidate();
@@ -110,7 +110,7 @@ export function useDeleteAssessment(classId: string) {
       assessmentId: string;
     }) =>
       api
-        .delete(`/enrollments/${enrollmentId}/assessments/${assessmentId}`)
+        .delete(`/avaliacoes/${assessmentId}`)
         .then((r) => r.data),
     onSuccess: () => {
       invalidate();

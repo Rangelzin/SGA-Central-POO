@@ -16,14 +16,14 @@ export function useTeachers(query: ListQuery) {
   return useQuery({
     queryKey: teacherKeys.list(query),
     queryFn: () =>
-      api.get<Page<Teacher>>("/teachers", { params: query }).then((r) => r.data),
+      api.get<Page<Teacher>>("/professores", { params: query }).then((r) => r.data),
   });
 }
 
 export function useTeacher(id: string | undefined) {
   return useQuery({
     queryKey: teacherKeys.detail(id ?? ""),
-    queryFn: () => api.get<Teacher>(`/teachers/${id}`).then((r) => r.data),
+    queryFn: () => api.get<Teacher>(`/professores/${id}`).then((r) => r.data),
     enabled: Boolean(id),
   });
 }
@@ -32,7 +32,7 @@ export function useCreateTeacher() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: TeacherInput) =>
-      api.post<Teacher>("/teachers", input).then((r) => r.data),
+      api.post<Teacher>("/professores", input).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: teacherKeys.all });
       toast.success("Professor criado com sucesso.");
@@ -45,7 +45,7 @@ export function useUpdateTeacher(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: TeacherInput) =>
-      api.put<Teacher>(`/teachers/${id}`, input).then((r) => r.data),
+      api.put<Teacher>(`/professores/${id}`, input).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: teacherKeys.all });
       toast.success("Professor atualizado com sucesso.");
@@ -57,7 +57,7 @@ export function useUpdateTeacher(id: string) {
 export function useDeleteTeacher() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/teachers/${id}`),
+    mutationFn: (id: string) => api.delete(`/professores/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: teacherKeys.all });
       toast.success("Professor removido.");

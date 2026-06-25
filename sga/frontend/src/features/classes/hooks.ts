@@ -18,14 +18,14 @@ export function useClasses(query: ClassQuery) {
   return useQuery({
     queryKey: classKeys.list(query),
     queryFn: () =>
-      api.get<Page<Class>>("/classes", { params: query }).then((r) => r.data),
+      api.get<Page<Class>>("/turmas", { params: query }).then((r) => r.data),
   });
 }
 
 export function useClass(id: string | undefined) {
   return useQuery({
     queryKey: classKeys.detail(id ?? ""),
-    queryFn: () => api.get<Class>(`/classes/${id}`).then((r) => r.data),
+    queryFn: () => api.get<Class>(`/turmas/${id}`).then((r) => r.data),
     enabled: Boolean(id),
   });
 }
@@ -34,16 +34,15 @@ export function useClassEnrollments(id: string | undefined) {
   return useQuery({
     queryKey: classKeys.enrollments(id ?? ""),
     queryFn: () =>
-      api.get<Enrollment[]>(`/classes/${id}/enrollments`).then((r) => r.data),
+      api.get<Enrollment[]>(`/turmas/${id}/alunos`).then((r) => r.data),
     enabled: Boolean(id),
   });
 }
 
-// RF-07: relatório de desempenho da turma
 export function useClassReport(id: string | undefined) {
   return useQuery({
     queryKey: classKeys.report(id ?? ""),
-    queryFn: () => api.get<ClassReport>(`/classes/${id}/report`).then((r) => r.data),
+    queryFn: () => api.get<ClassReport>(`/turmas/${id}/relatorio`).then((r) => r.data),
     enabled: Boolean(id),
   });
 }
@@ -52,7 +51,7 @@ export function useCreateClass() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: ClassInput) =>
-      api.post<Class>("/classes", input).then((r) => r.data),
+      api.post<Class>("/turmas", input).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: classKeys.all });
       toast.success("Turma criada com sucesso.");
@@ -65,7 +64,7 @@ export function useUpdateClass(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: ClassInput) =>
-      api.put<Class>(`/classes/${id}`, input).then((r) => r.data),
+      api.put<Class>(`/turmas/${id}`, input).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: classKeys.all });
       toast.success("Turma atualizada com sucesso.");
@@ -77,7 +76,7 @@ export function useUpdateClass(id: string) {
 export function useDeleteClass() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/classes/${id}`),
+    mutationFn: (id: string) => api.delete(`/turmas/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: classKeys.all });
       toast.success("Turma removida.");

@@ -23,14 +23,14 @@ VALUES ('INF0100', 'OBRIGATORIA', 64, NULL, 1),
 
 -- 3.1 Professor (UUID: a1b2c3d4-e5f6-7890-1234-56789abcdef0)
 INSERT INTO pessoa (id, nome, email, senha, role, matricula, cpf, data_nascimento) 
-VALUES ('a1b2c3d4-e5f6-7890-1234-56789abcdef0', 'Prof. Alan Turing', 'alan@ufg.br', '123456', 'PROFESSOR', 'P001', '111.222.333-44', '1912-06-23');
+VALUES ('a1b2c3d4-e5f6-7890-1234-56789abcdef0', 'Prof. Alan Turing', 'alan@ufg.br', '$2b$10$9SSxtLtbLktCWHf0v3mvtOfPgGreXoK1QFfklWk3h.K3EMoYXhe4C', 'PROFESSOR', 'P001', '111.222.333-44', '1912-06-23');
 
 INSERT INTO professor (id, titulacao, departamento_id) 
 VALUES ('a1b2c3d4-e5f6-7890-1234-56789abcdef0', 'Doutor em Computação', 1);
 
 -- 3.2 Aluno 1 (UUID: b2c3d4e5-f678-9012-3456-789abcdef012)
 INSERT INTO pessoa (id, nome, email, senha, role, matricula, cpf, data_nascimento) 
-VALUES ('b2c3d4e5-f678-9012-3456-789abcdef012', 'Ada Lovelace', 'ada@discente.ufg.br', '123456', 'ALUNO', 'A001', '555.666.777-88', '1815-12-10');
+VALUES ('b2c3d4e5-f678-9012-3456-789abcdef012', 'Ada Lovelace', 'ada@discente.ufg.br', '$2b$10$9SSxtLtbLktCWHf0v3mvtOfPgGreXoK1QFfklWk3h.K3EMoYXhe4C', 'ALUNO', 'A001', '555.666.777-88', '1815-12-10');
 
 INSERT INTO aluno (id, nota, frequencia, departamento_id) 
 VALUES ('b2c3d4e5-f678-9012-3456-789abcdef012', 0.0, 0.0, 1);

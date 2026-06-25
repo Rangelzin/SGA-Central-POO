@@ -28,7 +28,6 @@ import { homeRouteFor } from "@/lib/auth/rbac";
 import { getApiMessage } from "@/lib/api/client";
 import { loginSchema, type LoginFormValues } from "@/features/auth/schemas";
 
-const mocksEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCKS === "true";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -129,17 +128,6 @@ export default function LoginPage() {
             </Form>
           </CardContent>
         </Card>
-
-        {mocksEnabled && (
-          <Card className="border-dashed">
-            <CardContent className="space-y-1 text-xs text-muted-foreground">
-              <p className="font-medium text-foreground">Usuários de demonstração (senha: 123456)</p>
-              <p>admin@sga.edu.br — Administrador</p>
-              <p>professor@sga.edu.br — Professor</p>
-              <p>aluno@sga.edu.br — Aluno</p>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </main>
   );

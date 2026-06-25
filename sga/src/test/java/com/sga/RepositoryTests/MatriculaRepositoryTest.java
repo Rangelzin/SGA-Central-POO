@@ -1,10 +1,13 @@
-package com.sga.repository;
+package com.sga.RepositoryTests;
 
 import com.sga.model.*;
+import com.sga.model.enums.Role;
+import com.sga.model.enums.StatusMatricula;
+import com.sga.repository.MatriculadoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
 import java.util.List;
 
@@ -25,7 +28,8 @@ class MatriculadoRepositoryTest {
         aluno.setNome("Bia");
         aluno.setEmail("bia@uni.br");
         aluno.setSenha("s");
-        aluno.setRole("ALUNO");
+        aluno.setRole(Role.ALUNO);
+        aluno.setCpf("123.456.789-00");
         em.persist(aluno);
 
         Departamento dep = new Departamento();
@@ -43,8 +47,9 @@ class MatriculadoRepositoryTest {
         prof.setNome("Prof X");
         prof.setEmail("x@uni.br");
         prof.setSenha("s");
-        prof.setRole("PROFESSOR");
+        prof.setRole(Role.PROFESSOR);
         prof.setTitulacao("Mestre");
+        prof.setCpf("222.333.444-55");
         em.persist(prof);
 
         Turma turma = new Turma();
@@ -56,15 +61,15 @@ class MatriculadoRepositoryTest {
         Matriculado m = new Matriculado();
         m.setAluno(aluno);
         m.setTurma(turma);
-        m.setStatus("ATIVO");
+        m.setStatus(StatusMatricula.ATIVA);
         em.persistAndFlush(m);
 
-        List<Matriculado> porAluno = repository.findMatriculadosByAluno(aluno.getUuid());
+        List<Matriculado> porAluno = repository.findByAlunoId(aluno.getId());
         assertThat(porAluno).hasSize(1);
 
-        List<Matriculado> porTurma = repository.findMatriculadosByTurma(turma.getUuid());
+        List<Matriculado> porTurma = repository.findByTurmaId(turma.getId());
         assertThat(porTurma).hasSize(1);
-        assertThat(porTurma.get(0).getStatus()).isEqualTo("ATIVO");
+        assertThat(porTurma.get(0).getStatus()).isEqualTo(StatusMatricula.ATIVA);
     }
 
     @Test
@@ -73,7 +78,8 @@ class MatriculadoRepositoryTest {
         aluno.setNome("Leo");
         aluno.setEmail("leo@uni.br");
         aluno.setSenha("s");
-        aluno.setRole("ALUNO");
+        aluno.setRole(Role.ALUNO);
+        aluno.setCpf("111.222.333-44");
         em.persist(aluno);
 
         Departamento dep = new Departamento();
@@ -91,8 +97,9 @@ class MatriculadoRepositoryTest {
         prof.setNome("Prof Y");
         prof.setEmail("y@uni.br");
         prof.setSenha("s");
-        prof.setRole("PROFESSOR");
+        prof.setRole(Role.PROFESSOR);
         prof.setTitulacao("Dr");
+        prof.setCpf("555.666.777-88");
         em.persist(prof);
 
         Turma turma = new Turma();
@@ -106,6 +113,6 @@ class MatriculadoRepositoryTest {
         m.setTurma(turma);
         em.persistAndFlush(m);
 
-        assertThat(repository.existsByAlunoUuidAndTurmaUuid(aluno.getUuid(), turma.getUuid())).isTrue();
+        assertThat(repository.existsByAlunoIdAndTurmaId(aluno.getId(), turma.getId())).isTrue();
     }
 }

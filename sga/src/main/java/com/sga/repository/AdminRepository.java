@@ -1,7 +1,9 @@
 package com.sga.repository;
 
 import com.sga.model.Admin;
+import org.springframework.stereotype.Repository;
 
-public interface AdminRepository extends PessoaRepository<Admin> {
+@Repository
+public interface AdminRepository extends PessoaRepository {
 
 }

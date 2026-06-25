@@ -1,12 +1,13 @@
 package com.sga.RepositoryTests;
 
+import com.sga.model.Pessoa;
 import com.sga.model.Professor;
 import com.sga.model.enums.Role;
 import com.sga.repository.ProfessorRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
 import java.util.Optional;
 
@@ -28,6 +29,7 @@ class ProfessorRepositoryTest {
         p.setSenha("senha123");
         p.setRole(Role.PROFESSOR); 
         p.setTitulacao("Doutor");
+        p.setCpf("111.111.111-11");
         return em.persistFlushFind(p);
     }
 
@@ -35,10 +37,11 @@ class ProfessorRepositoryTest {
     void deveBuscarProfessorPorEmail() {
         criarProfessor("Ana Lima", "ana@uni.br");
 
-        Optional<Professor> resultado = repository.findByEmail("ana@uni.br");
+        Optional<Pessoa> resultado = repository.findByEmail("ana@uni.br");
 
         assertThat(resultado).isPresent();
-        assertThat(resultado.get().getTitulacao()).isEqualTo("Doutor");
+        assertThat(resultado.get()).isInstanceOf(Professor.class);
+        assertThat(((Professor) resultado.get()).getTitulacao()).isEqualTo("Doutor");
     }
 
     @Test
