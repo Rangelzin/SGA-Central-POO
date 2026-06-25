@@ -1,6 +1,8 @@
-package com.sga.repository;
+package com.sga.RepositoryTests;
 
 import com.sga.model.Aluno;
+import com.sga.model.enums.Role;
+import com.sga.repository.AlunoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -9,11 +11,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 @DataJpaTest
 class AlunoRepositoryTest {
 
     @Autowired
-    private TestEntityManager em; 
+    private TestEntityManager em;
 
     @Autowired
     private AlunoRepository repository;
@@ -23,7 +26,7 @@ class AlunoRepositoryTest {
         a.setNome(nome);
         a.setEmail(email);
         a.setSenha("senha123");
-        a.setRole("ALUNO");
+        a.setRole(Role.ALUNO); 
         a.setCpf(cpf);
         return em.persistFlushFind(a);
     }

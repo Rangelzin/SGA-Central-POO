@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface AvaliaRepository extends JpaRepository<Avalia, UUID> {
 
-    @Query("SELECT a FROM Avalia a WHERE a.matriculado.uuid = :matriculadoId")
+    @Query("SELECT a FROM Avalia a WHERE a.matriculado.id = :matriculadoId")
     List<Avalia> findAvaliacoesByMatriculado(@Param("matriculadoId")UUID matriculadoId);
 
     List<Avalia> findByTipo(String tipo);

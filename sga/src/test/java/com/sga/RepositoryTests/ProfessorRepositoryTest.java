@@ -1,6 +1,8 @@
-package com.sga.repository;
+package com.sga.RepositoryTests;
 
 import com.sga.model.Professor;
+import com.sga.model.enums.Role;
+import com.sga.repository.ProfessorRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -24,7 +26,7 @@ class ProfessorRepositoryTest {
         p.setNome(nome);
         p.setEmail(email);
         p.setSenha("senha123");
-        p.setRole("PROFESSOR");
+        p.setRole(Role.PROFESSOR); 
         p.setTitulacao("Doutor");
         return em.persistFlushFind(p);
     }

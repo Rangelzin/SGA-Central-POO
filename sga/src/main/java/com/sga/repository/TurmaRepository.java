@@ -13,9 +13,9 @@ public interface TurmaRepository extends JpaRepository<Turma, UUID> {
 
     Optional<Turma> findByCodigo(String codigo);
 
-    @Query("Select t FROM Turma t WHERE t.disciplina.uuid = :disciplinaId")
+    @Query("Select t FROM Turma t WHERE t.disciplina.id = :disciplinaId")
     List<Turma> findTurmaByDisciplina(@Param("disciplinaId")UUID disciplinaId);
 
-    @Query("Select t FROM Turma t WHERE t.professor.uuid = :professorId")
+    @Query("Select t FROM Turma t WHERE t.professor.id = :professorId")
     List<Turma> findTurmaByProfessor(@Param("professorId")UUID professorId);
 }
