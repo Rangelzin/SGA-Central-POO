@@ -8,11 +8,9 @@ import com.sga.model.enums.Role;
 import com.sga.repository.TurmaRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,6 +42,7 @@ class TurmaRepositoryTest {
         prof.setSenha("s");
         prof.setRole(Role.PROFESSOR); 
         prof.setTitulacao("PhD");
+        prof.setCpf("999.888.777-66");
         em.persist(prof);
 
         Turma t1 = new Turma();
@@ -61,7 +60,7 @@ class TurmaRepositoryTest {
         em.flush();
 
         
-        List<Turma> turmas = repository.findTurmasByDisciplina(disc.getId());
+        List<Turma> turmas = repository.findTurmaByDisciplina(disc.getId());
 
         assertThat(turmas).hasSize(2);
         assertThat(turmas).extracting(Turma::getCodigo)

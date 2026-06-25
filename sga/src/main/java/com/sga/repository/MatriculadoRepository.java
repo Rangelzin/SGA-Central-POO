@@ -10,13 +10,12 @@ import java.util.UUID;
 
 public interface MatriculadoRepository extends JpaRepository<Matriculado, UUID> {
 
-    // histórico acadêmico. Busca todas as matrículas de um aluno em específico
-    @Query("SELECT m FROM Matriculado m WHERE m.aluno.id = :alunoId")
-    List<Matriculado> findMatriculadosByAluno(@Param("alunoId")UUID alunoId);
+    @Query(nativeQuery = true, value = "SELECT m.* FROM matriculado m WHERE m.aluno_id = :alunoId AND m.deleted = false")
+    List<Matriculado> findByAlunoId(@Param("alunoId")UUID alunoId);
 
-    // todas as matriculas de uma turma
-    @Query("SELECT m FROM Matriculado m WHERE m.turma.id = :turmaId")
-    List<Matriculado> findMatriculadosByTurma(@Param("turmaId")UUID turmaId);
+    @Query(nativeQuery = true, value = "SELECT m.* FROM matriculado m WHERE m.turma_id = :turmaId AND m.deleted = false")
+    List<Matriculado> findByTurmaId(@Param("turmaId")UUID turmaId);
 
-    boolean existsByAlunoAndTurma(UUID alunoId, UUID turmaId);
+    @Query(nativeQuery = true, value = "SELECT CASE WHEN COUNT(m.id) > 0 THEN true ELSE false END FROM matriculado m WHERE m.aluno_id = :alunoId AND m.turma_id = :turmaId AND m.deleted = false")
+    boolean existsByAlunoIdAndTurmaId(@Param("alunoId")UUID alunoId, @Param("turmaId")UUID turmaId);
 }
