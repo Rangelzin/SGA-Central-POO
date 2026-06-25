@@ -20,7 +20,7 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "8081:8081"
+      - "8081:8080"
     depends_on:
       - postgres-db
     restart: always
@@ -31,7 +31,7 @@ services:
       dockerfile: Dockerfile
     container_name: sga-frontend-app
     environment:
-      NEXT_PUBLIC_API_BASE_URL: http://backend-app:8081/api
+      NEXT_PUBLIC_API_BASE_URL: http://backend-app:8080/api
     ports:
       - "3000:3000"
     depends_on:

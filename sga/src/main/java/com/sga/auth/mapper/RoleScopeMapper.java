@@ -1,4 +1,4 @@
-package com.sga.auth;
+package com.sga.auth.mapper;
 
 import com.sga.model.enums.Role;
 import org.springframework.stereotype.Component;
@@ -9,14 +9,10 @@ import java.util.List;
 public final class RoleScopeMapper {
 
     public List<String> getScopes(Role role) {
-        if (role == null) {
-            return List.of();
-        }
+        if (role == null) return List.of();
 
         return switch (role) {
-            case ADMIN -> List.of(
-                    Scopes.ALL
-            );
+            case ADMIN -> List.of(Scopes.ALL);
             case PROFESSOR -> List.of(
                     Scopes.READ_DISCIPLINAS,
                     Scopes.WRITE_NOTAS,

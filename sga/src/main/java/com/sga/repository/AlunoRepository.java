@@ -1,6 +1,9 @@
 package com.sga.repository;
 
 import com.sga.model.Aluno;
+import org.springframework.stereotype.Repository;
 
-public interface AlunoRepository extends PessoaRepository<Aluno> {
+@Repository
+public interface AlunoRepository extends PessoaRepository {
+
 }

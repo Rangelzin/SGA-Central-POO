@@ -1,6 +1,7 @@
 package com.sga.repository;
 
-import com.sga.model.Professor;
+import org.springframework.stereotype.Repository;
 
-public interface ProfessorRepository extends PessoaRepository<Professor> {
+@Repository
+public interface ProfessorRepository extends PessoaRepository {
 }
