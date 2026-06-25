@@ -1,15 +1,18 @@
-package com.sga.repository;
+package com.sga.RepositoryTests;
 
 import com.sga.model.Departamento;
 import com.sga.model.Disciplina;
 import com.sga.model.Professor;
 import com.sga.model.Turma;
+import com.sga.model.enums.Role;
+import com.sga.repository.TurmaRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,7 +27,6 @@ class TurmaRepositoryTest {
 
     @Test
     void deveBuscarTurmasPorDisciplina() {
-        
         Departamento dep = new Departamento();
         dep.setNome("Computação");
         dep.setSigla("INF");
@@ -40,7 +42,7 @@ class TurmaRepositoryTest {
         prof.setNome("Dr. Turing");
         prof.setEmail("turing@uni.br");
         prof.setSenha("s");
-        prof.setRole("PROFESSOR");
+        prof.setRole(Role.PROFESSOR); 
         prof.setTitulacao("PhD");
         em.persist(prof);
 
@@ -58,9 +60,11 @@ class TurmaRepositoryTest {
 
         em.flush();
 
-        List<Turma> turmas = repository.findTurmasByDisciplina(disc.getUuid());
+        
+        List<Turma> turmas = repository.findTurmasByDisciplina(disc.getId());
 
         assertThat(turmas).hasSize(2);
-        assertThat(turmas).extracting(Turma::getCodigo).containsExactlyInAnyOrder("T001", "T002");
+        assertThat(turmas).extracting(Turma::getCodigo)
+                .containsExactlyInAnyOrder("T001", "T002");
     }
 }

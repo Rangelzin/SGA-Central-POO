@@ -13,7 +13,7 @@ public interface DepartamentoRepository extends JpaRepository<Departamento, UUID
 
     Optional<Departamento> findBySigla(String sigla);
 
-    @Query("SELECT d FROM Departamento d WHERE d.universidade.uuid = :universidadeId")
+    @Query("SELECT d FROM Departamento d WHERE d.universidade.id = :universidadeId")
     List<Departamento> findDepartamentoByUnivesidade(@Param("universidadeId")UUID universidadeId);
 
 }

@@ -13,7 +13,7 @@ public interface CursoRepository extends JpaRepository<Curso, UUID> {
 
     Optional<Curso> findBySigla(String sigla);
 
-    @Query("SELECT c FROM Curso c WHERE c.departamento.uuid = :departamentoId")
+    @Query("SELECT c FROM Curso c WHERE c.departamento.id = :departamentoId")
     List<Curso> findCursoByDepartamento(@Param("departamentoId")UUID departamentoId);
 
 }
