@@ -41,7 +41,7 @@ public class AuthService {
                 .build();
     }
 
-    public MeResponse me(String email) throws Throwable {
+    public MeResponse me(String email) {
         Pessoa pessoa = pessoaRepository.findByEmail(email)
                 .orElseThrow(() -> new BadCredentialsException("Usuário não encontrado!"));
 

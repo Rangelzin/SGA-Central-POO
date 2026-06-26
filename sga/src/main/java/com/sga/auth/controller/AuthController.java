@@ -31,7 +31,7 @@ public class AuthController {
 
     @GetMapping("/me")
     @ResponseStatus(HttpStatus.OK)
-    public MeResponse me(@AuthenticationPrincipal Jwt jwt) throws Throwable {
+    public MeResponse me(@AuthenticationPrincipal Jwt jwt) {
         return authService.me(jwt.getClaim("email"));
     }
 }
