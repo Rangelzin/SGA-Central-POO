@@ -41,3 +41,6 @@ out/
 .env
 *.pem
 *.pub
+
+## Arquivos locais do Claude (relatórios/roteiros) — não versionados ##
+docs/Arquivos_Claude/

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface DepartamentoRepository extends JpaRepository<Departamento, UUID> {
+public interface DepartamentoRepository extends JpaRepository<Departamento, Long> {
 
     Optional<Departamento> findBySigla(String sigla);
 

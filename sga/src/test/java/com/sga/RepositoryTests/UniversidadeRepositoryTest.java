@@ -1,6 +1,7 @@
-package com.sga.repository;
+package com.sga.RepositoryTests;
 
 import com.sga.model.Universidade;
+import com.sga.repository.UniversidadeRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;

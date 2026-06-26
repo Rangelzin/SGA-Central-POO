@@ -27,6 +27,7 @@ public class Avalia {
     private String status;
     private String descricao;
     private BigDecimal nota;
+    private BigDecimal peso;
     @Enumerated(EnumType.STRING)
     private TipoAvaliacao tipo;
     private LocalDate dataIn;

@@ -27,6 +27,7 @@ public class Turma {
     private String codigo;
     private String horario;
     private String localidade;
+    private Integer capacidade;
     private LocalDate dataIn;
     private LocalDate dataOut;
 

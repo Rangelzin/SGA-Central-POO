@@ -1,0 +1,1 @@
+ALTER TABLE avalia ADD COLUMN peso NUMERIC(4,2);
