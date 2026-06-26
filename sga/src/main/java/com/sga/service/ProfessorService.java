@@ -20,15 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-/**
- * Regras de negócio de gerenciamento de professores (RF-02).
- * <p>
- * A unicidade de e-mail e CPF é verificada contra {@link PessoaRepository}
- * (todas as pessoas), pois esses campos são únicos na tabela {@code pessoa}.
- *
- * @author SGA Team
- * @since 2026-06-25
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -40,7 +31,6 @@ public class ProfessorService {
     private final TurmaRepository turmaRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /** Lista professores com paginação, filtrando opcionalmente por nome. */
     @Transactional(readOnly = true)
     public Page<Professor> listar(String nome, Pageable pageable) {
         if (nome != null && !nome.isBlank()) {
@@ -49,17 +39,12 @@ public class ProfessorService {
         return professorRepository.findAll(pageable);
     }
 
-    /** Busca um professor por id ou lança {@link ResourceNotFoundException}. */
     @Transactional(readOnly = true)
     public Professor buscarPorId(UUID id) {
         return professorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Professor", id));
     }
 
-    /**
-     * Cria um novo professor: valida unicidade de e-mail/CPF, exige titulação e
-     * departamento, codifica a senha e força o papel {@link Role#PROFESSOR}.
-     */
     @Transactional
     public Professor criar(Professor dados) {
         validarEmailUnico(dados.getEmail(), null);
@@ -81,10 +66,6 @@ public class ProfessorService {
         return salvo;
     }
 
-    /**
-     * Atualiza os dados de um professor. A senha só é alterada quando um novo
-     * valor não vazio é informado; o departamento, apenas quando informado.
-     */
     @Transactional
     public Professor atualizar(UUID id, Professor dados) {
         Professor professor = buscarPorId(id);
@@ -110,12 +91,6 @@ public class ProfessorService {
         return professor;
     }
 
-    /**
-     * Remove um professor (exclusão lógica). Bloqueia a remoção quando há turmas
-     * vinculadas, evitando deixar turmas (e seus alunos) sem responsável.
-     *
-     * @throws BusinessException se o professor possuir turmas vinculadas
-     */
     @Transactional
     public void deletar(UUID id) {
         Professor professor = buscarPorId(id);

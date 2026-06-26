@@ -23,16 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * Regras de negócio de gerenciamento de turmas (RF-04, parte de CRUD).
- * <p>
- * A gestão de <b>vagas</b> está pendente: a entidade {@link Turma} ainda não
- * modela capacidade — ver a pendência registrada na ALTA-3 e o
- * {@code MatriculaService}.
- *
- * @author SGA Team
- * @since 2026-06-25
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -43,23 +33,17 @@ public class TurmaService {
     private final ProfessorRepository professorRepository;
     private final MatriculadoRepository matriculadoRepository;
 
-    /** Lista turmas com paginação. */
     @Transactional(readOnly = true)
     public Page<Turma> listar(Pageable pageable) {
         return turmaRepository.findAll(pageable);
     }
 
-    /** Busca uma turma por id ou lança {@link ResourceNotFoundException}. */
     @Transactional(readOnly = true)
     public Turma buscarPorId(UUID id) {
         return turmaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Turma", id));
     }
 
-    /**
-     * Cria uma turma: valida código único (regra de negócio) e resolve os
-     * vínculos obrigatórios com disciplina e professor.
-     */
     @Transactional
     public Turma criar(Turma dados) {
         validarCodigoUnico(dados.getCodigo(), null);
@@ -80,7 +64,6 @@ public class TurmaService {
         return salva;
     }
 
-    /** Atualiza os dados de uma turma; disciplina/professor só quando informados. */
     @Transactional
     public Turma atualizar(UUID id, Turma dados) {
         Turma turma = buscarPorId(id);
@@ -106,11 +89,6 @@ public class TurmaService {
         return turma;
     }
 
-    /**
-     * Remove uma turma (exclusão lógica). Bloqueia quando há alunos matriculados.
-     *
-     * @throws BusinessException se a turma possuir matrículas
-     */
     @Transactional
     public void deletar(UUID id) {
         Turma turma = buscarPorId(id);
@@ -123,13 +101,11 @@ public class TurmaService {
         log.info("Turma removida: id={}", id);
     }
 
-    /** Lista as matrículas de uma turma. */
     @Transactional(readOnly = true)
     public List<Matriculado> listarMatriculados(UUID turmaId) {
         return matriculadoRepository.findByTurmaId(turmaId);
     }
 
-    /** Lista os alunos matriculados em uma turma. */
     @Transactional(readOnly = true)
     public List<Aluno> listarAlunos(UUID turmaId) {
         return matriculadoRepository.findByTurmaId(turmaId).stream()

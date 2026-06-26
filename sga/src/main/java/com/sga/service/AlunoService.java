@@ -22,17 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Regras de negócio de gerenciamento de alunos (RF-01).
- * <p>
- * Concentra as validações (e-mail/CPF únicos, departamento obrigatório) e a
- * orquestração de persistência. A unicidade de e-mail e CPF é verificada contra
- * {@link PessoaRepository} (todas as pessoas), não apenas alunos, pois esses
- * campos são únicos na tabela {@code pessoa}.
- *
- * @author SGA Team
- * @since 2026-06-25
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -44,10 +33,6 @@ public class AlunoService {
     private final MatriculadoRepository matriculadoRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Lista alunos com paginação, filtrando opcionalmente por nome (contém, sem
-     * diferenciar maiúsculas/minúsculas).
-     */
     @Transactional(readOnly = true)
     public Page<Aluno> listar(String nome, Pageable pageable) {
         if (nome != null && !nome.isBlank()) {
@@ -56,17 +41,12 @@ public class AlunoService {
         return alunoRepository.findAll(pageable);
     }
 
-    /** Busca um aluno por id ou lança {@link ResourceNotFoundException}. */
     @Transactional(readOnly = true)
     public Aluno buscarPorId(UUID id) {
         return alunoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Aluno", id));
     }
 
-    /**
-     * Cria um novo aluno: valida unicidade de e-mail/CPF, exige departamento,
-     * codifica a senha e força o papel {@link Role#ALUNO}.
-     */
     @Transactional
     public Aluno criar(Aluno dados) {
         validarEmailUnico(dados.getEmail(), null);
@@ -87,10 +67,6 @@ public class AlunoService {
         return salvo;
     }
 
-    /**
-     * Atualiza os dados de um aluno existente. A senha só é alterada quando um
-     * novo valor não vazio é informado; o departamento, apenas quando informado.
-     */
     @Transactional
     public Aluno atualizar(UUID id, Aluno dados) {
         Aluno aluno = buscarPorId(id);
@@ -115,10 +91,6 @@ public class AlunoService {
         return aluno;
     }
 
-    /**
-     * Remove um aluno (exclusão lógica via {@code @SoftDelete}) junto de suas
-     * matrículas (RF-01: cascade delete).
-     */
     @Transactional
     public void deletar(UUID id) {
         Aluno aluno = buscarPorId(id);

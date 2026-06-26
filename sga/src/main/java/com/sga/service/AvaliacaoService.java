@@ -18,39 +18,17 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Regras de negócio de avaliações: registro de notas/frequência e cálculo de
- * situação acadêmica (RF-05).
- * <p>
- * A nota consolidada de um {@link Matriculado} ({@code matriculado.nota}) é a
- * <b>média ponderada</b> das notas de suas avaliações pelos respectivos pesos
- * ({@link Avalia#getPeso()}). Avaliações sem peso definido contam como peso 1.
- *
- * @author SGA Team
- * @since 2026-06-25
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AvaliacaoService {
 
-    /** Média mínima para aprovação. */
     private static final BigDecimal NOTA_APROVACAO = new BigDecimal("6.0");
-    /** Frequência mínima (%) para aprovação. */
     private static final int FREQUENCIA_MINIMA = 75;
 
     private final MatriculadoRepository matriculadoRepository;
     private final AvaliaRepository avaliaRepository;
 
-    /**
-     * Registra uma nota (avaliação) para um matriculado e recalcula a média
-     * consolidada da matrícula.
-     *
-     * @param peso peso da avaliação na média ponderada; {@code null} conta como 1
-     * @throws ResourceNotFoundException se a matrícula não existir
-     * @throws BusinessException         se a nota for nula ou fora de [0, 10],
-     *                                   ou se o peso for ≤ 0
-     */
     @Transactional
     public Avalia registrarNota(UUID matriculadoId, BigDecimal nota, BigDecimal peso, TipoAvaliacao tipo, String descricao) {
         Matriculado matriculado = buscarMatriculado(matriculadoId);
@@ -71,12 +49,6 @@ public class AvaliacaoService {
         return salva;
     }
 
-    /**
-     * Registra a frequência (%) de um matriculado.
-     *
-     * @throws ResourceNotFoundException se a matrícula não existir
-     * @throws BusinessException         se a frequência estiver fora de [0, 100]
-     */
     @Transactional
     public Matriculado registrarFrequencia(UUID matriculadoId, Integer frequencia) {
         Matriculado matriculado = buscarMatriculado(matriculadoId);
@@ -90,14 +62,6 @@ public class AvaliacaoService {
         return matriculado;
     }
 
-    /**
-     * Calcula e persiste a situação do matriculado: {@link StatusMatricula#APROVADO}
-     * quando a média ≥ 6,0 <b>e</b> a frequência ≥ 75%, caso contrário
-     * {@link StatusMatricula#REPROVADO}.
-     *
-     * @throws ResourceNotFoundException se a matrícula não existir
-     * @throws BusinessException         se nota ou frequência não estiverem registradas
-     */
     @Transactional
     public StatusMatricula calcularSituacao(UUID matriculadoId) {
         Matriculado matriculado = buscarMatriculado(matriculadoId);
@@ -137,11 +101,6 @@ public class AvaliacaoService {
         }
     }
 
-    /**
-     * Recalcula {@code matriculado.nota} como a média ponderada das notas das
-     * avaliações da matrícula: {@code Σ(nota·peso) / Σ(peso)}. Avaliações sem
-     * peso definido contam como peso 1.
-     */
     private void recalcularMedia(UUID matriculadoId, Matriculado matriculado) {
         List<Avalia> avaliacoes = avaliaRepository.findAvaliacoesByMatriculado(matriculadoId).stream()
                 .filter(a -> a.getNota() != null)
