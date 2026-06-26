@@ -4,9 +4,8 @@ import com.sga.model.Universidade;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
-import java.util.UUID;
 
-public interface UniversidadeRepository extends JpaRepository<Universidade, UUID> {
+public interface UniversidadeRepository extends JpaRepository<Universidade, Long> {
 
     Optional<Universidade> findBySigla(String sigla);
 

@@ -21,7 +21,7 @@ Todos em `com.sga.service`, com teste unitário (Mockito) em `src/test/java/com/
 | `AvaliacaoService` | RF-05 | Registrar nota/frequência; **média ponderada**; situação (APROVADO se média ≥ 6 **e** freq ≥ 75%) | `AvaliacaoServiceTest` (10) |
 | `RelatorioService` | RF-06/07 | Histórico do aluno; relatório de turma; resumo de aprovação | `RelatorioServiceTest` (4) |
 
-**~47 testes de service.** *(Não validados localmente — ver seção "Compilação/testes".)*
+**47 testes de service — validados ✅** (compilação + execução no WSL/JDK 21 em 26/06/2026, todos verdes). Ver seção "Compilação/testes".
 
 **Padrão adotado:** `@Service` + `@RequiredArgsConstructor` + `@Slf4j`; validações em helpers privados que lançam exceções de negócio; `@Transactional` nas escritas, `readOnly` nas leituras.
 
@@ -78,10 +78,13 @@ Todas **aditivas** (apenas `ADD COLUMN`) — não impactam V001–V005 já aplic
 
 ## 🐞 Bugs corrigidos durante a ALTA-3
 
-Repositories declaravam o tipo de ID errado (quebraria `findById`):
+Repositories declaravam o tipo de ID errado (quebraria `findById`). As entidades
+BIGINT do modelo (`universidade`, `departamento`, `curso`, `disciplina`) usam
+`Long`, não `UUID`:
 
 - `DepartamentoRepository`: `JpaRepository<Departamento, UUID>` → **`Long`** (id é `Long`).
 - `DisciplinaRepository`: `JpaRepository<Disciplina, UUID>` → **`Long`** (id é `Long`).
+- `UniversidadeRepository`: `JpaRepository<Universidade, UUID>` → **`Long`** (id é `Long`).
 
 ---
 
@@ -91,6 +94,7 @@ Refatoração de tipagem nos repositories de pessoa (herdavam de `PessoaReposito
 
 - `AlunoRepository` → `JpaRepository<Aluno, UUID>` · `AlunoRepositoryTest` ajustado (`Optional<Pessoa>` → `Optional<Aluno>`).
 - `ProfessorRepository` → `JpaRepository<Professor, UUID>` · `ProfessorRepositoryTest` ajustado (idem).
+- `UniversidadeRepositoryTest`: renomeado `.Java` → `.java` (estava com extensão maiúscula e era ignorado pelo Gradle) e pacote corrigido `com.sga.repository` → `com.sga.RepositoryTests` (alinhado ao diretório/irmãos).
 
 Entidades com coluna nova (P1/P2/P3): `Turma`, `Avalia`, `Disciplina`.
 
@@ -106,12 +110,18 @@ em commits próprios):
 3. **service** — exceções + 7 services + testes de service.
 4. **docs** — este arquivo + `task.md`.
 
+**Pendente de commit** (alterado após a sessão de validação): `UniversidadeRepository`
+(UUID → Long) + `UniversidadeRepositoryTest` (rename `.Java`→`.java` + pacote) →
+commit não-service; e a atualização destes docs → commit docs.
+
 ---
 
-## 📌 Compilação/testes (não validados localmente)
+## 📌 Compilação/testes — validados em 26/06/2026 (WSL/JDK 21)
 
-> O build exige **JDK 21**; a máquina Windows só tem JDK 15. Compilar/testar pelo **WSL (Ubuntu, JDK 21)** — ver `docs/` para o roteiro de teste, quando gerado.
+> O build exige **JDK 21**; a máquina Windows só tem JDK 15. Rodado pelo **WSL (Ubuntu, JDK 21)** na cópia do Windows via `/mnt/c`. Passo a passo em [ROTEIRO-TESTE-WSL.md](../ROTEIRO-TESTE-WSL.md).
 
-- **Mockito:** o build usa starters granulares (`spring-boot-starter-*-test`). Se a compilação dos testes falhar em `org.mockito.junit.jupiter.MockitoExtension`, adicionar em `build.gradle`:
-  `testImplementation 'org.mockito:mockito-junit-jupiter'`
+- ✅ `compileJava` + `compileTestJava`: OK. **Mockito veio transitivamente** — o fallback `testImplementation 'org.mockito:mockito-junit-jupiter'` **não foi necessário**.
+- ✅ Testes de service: **47/47** verdes.
+- ✅ Testes de repositório: **11/11** verdes — Aluno (4), Professor (2), Matriculado (2), Turma (1), Universidade (2). Inclui os refatorados `AlunoRepositoryTest`/`ProfessorRepositoryTest` e o `UniversidadeRepositoryTest` reativado (rename + pacote).
+- ⚠️ Suíte completa (`./gradlew test`) inclui `SgaApplicationTests` (`@SpringBootTest`), que exige banco/.env + chaves RSA — não validado aqui (não afeta os services).
 - **Schema ↔ entidades:** com `ddl-auto=none` + Flyway, conferir que `V006`/`V007`/`V008` casam com os novos campos rodando a app contra um banco limpo.
