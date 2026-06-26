@@ -107,7 +107,7 @@ public class ProfessorService {
         }
 
         log.info("Professor atualizado: id={}", id);
-        return professor; // dirty checking
+        return professor;
     }
 
     /**
@@ -128,10 +128,6 @@ public class ProfessorService {
         log.info("Professor removido: id={}", id);
     }
 
-    // ------------------------------------------------------------------
-    // Helpers de validação
-    // ------------------------------------------------------------------
-
     private void validarEmailUnico(String email, Professor atual) {
         if (email == null || email.isBlank()) {
             throw new BusinessException("E-mail é obrigatório.");
@@ -150,7 +146,6 @@ public class ProfessorService {
         if (mudou && pessoaRepository.existsByCpf(cpf)) {
             throw new ConflictException("Já existe uma pessoa cadastrada com este CPF.");
         }
-        // Validação do dígito verificador do CPF: ver MÉDIA-2 (CpfValidator).
     }
 
     private String exigirSenha(String senha) {

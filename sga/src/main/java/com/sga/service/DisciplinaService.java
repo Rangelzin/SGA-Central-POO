@@ -84,7 +84,7 @@ public class DisciplinaService {
         }
 
         log.info("Disciplina atualizada: id={}", id);
-        return disciplina; // dirty checking
+        return disciplina;
     }
 
     /**
@@ -126,7 +126,7 @@ public class DisciplinaService {
 
         disciplina.setAtivo(true);
         log.info("Disciplina ativada: id={}", id);
-        return disciplina; // dirty checking
+        return disciplina;
     }
 
     /** Desativa uma disciplina. */
@@ -135,12 +135,8 @@ public class DisciplinaService {
         Disciplina disciplina = buscarPorId(id);
         disciplina.setAtivo(false);
         log.info("Disciplina desativada: id={}", id);
-        return disciplina; // dirty checking
+        return disciplina;
     }
-
-    // ------------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------------
 
     private void validarCodigoUnico(String codigo, Disciplina atual) {
         if (codigo == null || codigo.isBlank()) {

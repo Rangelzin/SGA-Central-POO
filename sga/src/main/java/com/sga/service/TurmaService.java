@@ -103,7 +103,7 @@ public class TurmaService {
         }
 
         log.info("Turma atualizada: id={}", id);
-        return turma; // dirty checking
+        return turma;
     }
 
     /**
@@ -138,10 +138,6 @@ public class TurmaService {
                 .distinct()
                 .toList();
     }
-
-    // ------------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------------
 
     private void validarCodigoUnico(String codigo, Turma atual) {
         if (codigo == null || codigo.isBlank()) {

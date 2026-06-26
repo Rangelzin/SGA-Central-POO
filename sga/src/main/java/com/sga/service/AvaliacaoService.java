@@ -117,10 +117,6 @@ public class AvaliacaoService {
         return situacao;
     }
 
-    // ------------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------------
-
     private Matriculado buscarMatriculado(UUID matriculadoId) {
         return matriculadoRepository.findById(matriculadoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Matrícula", matriculadoId));

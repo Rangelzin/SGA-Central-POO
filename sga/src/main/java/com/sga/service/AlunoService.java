@@ -112,7 +112,7 @@ public class AlunoService {
         }
 
         log.info("Aluno atualizado: id={}", id);
-        return aluno; // alterações persistidas por dirty checking dentro da transação
+        return aluno;
     }
 
     /**
@@ -129,10 +129,6 @@ public class AlunoService {
 
         log.info("Aluno removido: id={} ({} matrícula(s) removida(s))", id, matriculas.size());
     }
-
-    // ------------------------------------------------------------------
-    // Helpers de validação
-    // ------------------------------------------------------------------
 
     private void validarEmailUnico(String email, Aluno atual) {
         if (email == null || email.isBlank()) {
@@ -152,7 +148,6 @@ public class AlunoService {
         if (mudou && pessoaRepository.existsByCpf(cpf)) {
             throw new ConflictException("Já existe uma pessoa cadastrada com este CPF.");
         }
-        // Validação do dígito verificador do CPF: ver MÉDIA-2 (CpfValidator).
     }
 
     private String exigirSenha(String senha) {

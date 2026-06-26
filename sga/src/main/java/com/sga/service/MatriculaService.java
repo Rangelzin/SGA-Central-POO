@@ -96,7 +96,7 @@ public class MatriculaService {
     private void validarVagaDisponivel(Turma turma, UUID turmaId) {
         Integer capacidade = turma.getCapacidade();
         if (capacidade == null) {
-            return; // sem limite definido
+            return;
         }
         long matriculasAtivas = matriculadoRepository.findByTurmaId(turmaId).stream()
                 .filter(m -> m.getStatus() == StatusMatricula.ATIVA)
