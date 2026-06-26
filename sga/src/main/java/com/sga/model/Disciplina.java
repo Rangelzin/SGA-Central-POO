@@ -28,6 +28,7 @@ public class Disciplina {
     @NotNull
     private Integer cargaHoraria;
     private String preRequisito;
+    private boolean ativo;
 
     @ManyToOne
     private Departamento departamento;
