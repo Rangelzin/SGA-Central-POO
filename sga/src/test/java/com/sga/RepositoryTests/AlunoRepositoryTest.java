@@ -1,7 +1,6 @@
 package com.sga.RepositoryTests;
 
 import com.sga.model.Aluno;
-import com.sga.model.Pessoa;
 import com.sga.model.enums.Role;
 import com.sga.repository.AlunoRepository;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,7 @@ class AlunoRepositoryTest {
     void deveSalvarEBuscarPorEmail() {
         criarAluno("Rangel Silva", "rangel@uni.br", "111.111.111-11");
 
-        Optional<Pessoa> resultado = repository.findByEmail("rangel@uni.br");
+        Optional<Aluno> resultado = repository.findByEmail("rangel@uni.br");
         assertThat(resultado.get()).isInstanceOf(Aluno.class);
         assertThat(resultado).isPresent();
         assertThat(resultado.get().getNome()).isEqualTo("Rangel Silva");
@@ -49,7 +48,7 @@ class AlunoRepositoryTest {
     void deveBuscarPorCpf() {
         criarAluno("Tiago Souza", "tiago@uni.br", "222.222.222-22");
 
-        Optional<Pessoa> resultado = repository.findByCpf("222.222.222-22");
+        Optional<Aluno> resultado = repository.findByCpf("222.222.222-22");
         assertThat(resultado.get()).isInstanceOf(Aluno.class);
         assertThat(resultado).isPresent();
         assertThat(resultado.get().getEmail()).isEqualTo("tiago@uni.br");
@@ -57,7 +56,7 @@ class AlunoRepositoryTest {
 
     @Test
     void deveRetornarVazioParaEmailInexistente() {
-        Optional<Pessoa> resultado = repository.findByEmail("naoexiste@uni.br");
+        Optional<Aluno> resultado = repository.findByEmail("naoexiste@uni.br");
 
         assertThat(resultado).isEmpty();
     }
