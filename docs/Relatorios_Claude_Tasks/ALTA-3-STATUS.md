@@ -118,7 +118,7 @@ commit não-service; e a atualização destes docs → commit docs.
 
 ## 📌 Compilação/testes — validados em 26/06/2026 (WSL/JDK 21)
 
-> O build exige **JDK 21**; a máquina Windows só tem JDK 15. Rodado pelo **WSL (Ubuntu, JDK 21)** na cópia do Windows via `/mnt/c`. Passo a passo em [ROTEIRO-TESTE-WSL.md](../ROTEIRO-TESTE-WSL.md).
+> O build exige **JDK 21**; a máquina Windows só tem JDK 15. Rodado pelo **WSL (Ubuntu, JDK 21)** na cópia do Windows via `/mnt/c`. Passo a passo no roteiro de teste local (em `docs/Arquivos_Claude/`, fora do versionamento).
 
 - ✅ `compileJava` + `compileTestJava`: OK. **Mockito veio transitivamente** — o fallback `testImplementation 'org.mockito:mockito-junit-jupiter'` **não foi necessário**.
 - ✅ Testes de service: **47/47** verdes.
