@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(./gradlew compileJava compileTestJava -q)",
-      "PowerShell($found = @\\(\\); foreach \\($base in @\\(\"$env:ProgramFiles\\\\Java\",\"$env:ProgramFiles\\\\Eclipse Adoptium\",\"$env:LOCALAPPDATA\\\\Programs\\\\Eclipse Adoptium\",\"$env:ProgramFiles\\\\Microsoft\",\"$env:ProgramFiles\\\\Amazon Corretto\",\"$env:ProgramFiles\\\\BellSoft\"\\)\\) { if \\(Test-Path $base\\) { Get-ChildItem $base -Directory -ErrorAction SilentlyContinue | ForEach-Object { if \\(Test-Path \"$\\($_.FullName\\)\\\\bin\\\\java.exe\"\\) { $found += $_.FullName } } } }; $found; \"---JAVA_HOME=$env:JAVA_HOME---\")"
-    ]
-  }
-}
