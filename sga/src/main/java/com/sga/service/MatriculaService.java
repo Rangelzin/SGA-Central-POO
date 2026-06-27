@@ -30,6 +30,8 @@ public class MatriculaService {
     @Transactional
     public Matriculado matricular(UUID alunoId, UUID turmaId) {
         Aluno aluno = alunoRepository.findById(alunoId)
+                .filter(Aluno.class::isInstance)
+                .map(Aluno.class::cast)
                 .orElseThrow(() -> new ResourceNotFoundException("Aluno", alunoId));
         Turma turma = turmaRepository.findById(turmaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Turma", turmaId));

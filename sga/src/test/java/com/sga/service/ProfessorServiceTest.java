@@ -8,7 +8,6 @@ import com.sga.model.Professor;
 import com.sga.model.Turma;
 import com.sga.model.enums.Role;
 import com.sga.repository.DepartamentoRepository;
-import com.sga.repository.PessoaRepository;
 import com.sga.repository.ProfessorRepository;
 import com.sga.repository.TurmaRepository;
 import org.junit.jupiter.api.Test;
@@ -34,8 +33,6 @@ class ProfessorServiceTest {
 
     @Mock
     private ProfessorRepository professorRepository;
-    @Mock
-    private PessoaRepository pessoaRepository;
     @Mock
     private DepartamentoRepository departamentoRepository;
     @Mock
@@ -63,8 +60,8 @@ class ProfessorServiceTest {
     @Test
     void deveCriarProfessorCodificandoSenhaEForcandoRoleProfessor() {
         Professor dados = novoProfessorValido();
-        when(pessoaRepository.existsByEmail("ana@uni.br")).thenReturn(false);
-        when(pessoaRepository.existsByCpf("111.111.111-11")).thenReturn(false);
+        when(professorRepository.existsByEmail("ana@uni.br")).thenReturn(false);
+        when(professorRepository.existsByCpf("111.111.111-11")).thenReturn(false);
         when(departamentoRepository.findById(1L)).thenReturn(Optional.of(dados.getDepartamento()));
         when(passwordEncoder.encode("senha123")).thenReturn("hash");
         when(professorRepository.save(any(Professor.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -80,8 +77,8 @@ class ProfessorServiceTest {
     void deveExigirTitulacao() {
         Professor dados = novoProfessorValido();
         dados.setTitulacao("  ");
-        when(pessoaRepository.existsByEmail("ana@uni.br")).thenReturn(false);
-        when(pessoaRepository.existsByCpf("111.111.111-11")).thenReturn(false);
+        when(professorRepository.existsByEmail("ana@uni.br")).thenReturn(false);
+        when(professorRepository.existsByCpf("111.111.111-11")).thenReturn(false);
 
         assertThatThrownBy(() -> service.criar(dados))
                 .isInstanceOf(BusinessException.class);
@@ -92,7 +89,7 @@ class ProfessorServiceTest {
     @Test
     void deveRejeitarEmailDuplicado() {
         Professor dados = novoProfessorValido();
-        when(pessoaRepository.existsByEmail("ana@uni.br")).thenReturn(true);
+        when(professorRepository.existsByEmail("ana@uni.br")).thenReturn(true);
 
         assertThatThrownBy(() -> service.criar(dados))
                 .isInstanceOf(ConflictException.class);
