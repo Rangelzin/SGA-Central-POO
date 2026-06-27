@@ -7,17 +7,18 @@ import com.sga.model.Departamento;
 import com.sga.model.Professor;
 import com.sga.model.enums.Role;
 import com.sga.repository.DepartamentoRepository;
-import com.sga.repository.PessoaRepository;
 import com.sga.repository.ProfessorRepository;
 import com.sga.repository.TurmaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,22 +27,32 @@ import java.util.UUID;
 public class ProfessorService {
 
     private final ProfessorRepository professorRepository;
-    private final PessoaRepository pessoaRepository;
     private final DepartamentoRepository departamentoRepository;
     private final TurmaRepository turmaRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public Page<Professor> listar(String nome, Pageable pageable) {
-        if (nome != null && !nome.isBlank()) {
-            return professorRepository.findByNomeContainingIgnoreCase(nome.trim(), pageable);
+        String filtro = nome == null ? "" : nome.trim().toLowerCase();
+        List<Professor> professores = professorRepository.findAll().stream()
+                .filter(Professor.class::isInstance)
+                .map(Professor.class::cast)
+                .filter(p -> filtro.isEmpty() || (p.getNome() != null && p.getNome().toLowerCase().contains(filtro)))
+                .toList();
+
+        int inicio = (int) pageable.getOffset();
+        if (inicio >= professores.size()) {
+            return new PageImpl<>(List.of(), pageable, professores.size());
         }
-        return professorRepository.findAll(pageable);
+        int fim = Math.min(inicio + pageable.getPageSize(), professores.size());
+        return new PageImpl<>(professores.subList(inicio, fim), pageable, professores.size());
     }
 
     @Transactional(readOnly = true)
     public Professor buscarPorId(UUID id) {
         return professorRepository.findById(id)
+                .filter(Professor.class::isInstance)
+                .map(Professor.class::cast)
                 .orElseThrow(() -> new ResourceNotFoundException("Professor", id));
     }
 
@@ -108,7 +119,7 @@ public class ProfessorService {
             throw new BusinessException("E-mail é obrigatório.");
         }
         boolean mudou = atual == null || !email.equalsIgnoreCase(atual.getEmail());
-        if (mudou && pessoaRepository.existsByEmail(email)) {
+        if (mudou && professorRepository.existsByEmail(email)) {
             throw new ConflictException("Já existe uma pessoa cadastrada com o e-mail " + email + ".");
         }
     }
@@ -118,7 +129,7 @@ public class ProfessorService {
             throw new BusinessException("CPF é obrigatório.");
         }
         boolean mudou = atual == null || !cpf.equals(atual.getCpf());
-        if (mudou && pessoaRepository.existsByCpf(cpf)) {
+        if (mudou && professorRepository.existsByCpf(cpf)) {
             throw new ConflictException("Já existe uma pessoa cadastrada com este CPF.");
         }
     }

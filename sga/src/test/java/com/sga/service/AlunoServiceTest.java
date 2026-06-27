@@ -9,7 +9,6 @@ import com.sga.model.enums.Role;
 import com.sga.repository.AlunoRepository;
 import com.sga.repository.DepartamentoRepository;
 import com.sga.repository.MatriculadoRepository;
-import com.sga.repository.PessoaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -34,8 +33,6 @@ class AlunoServiceTest {
 
     @Mock
     private AlunoRepository alunoRepository;
-    @Mock
-    private PessoaRepository pessoaRepository;
     @Mock
     private DepartamentoRepository departamentoRepository;
     @Mock
@@ -62,8 +59,8 @@ class AlunoServiceTest {
     @Test
     void deveCriarAlunoCodificandoSenhaEForcandoRoleAluno() {
         Aluno dados = novoAlunoValido();
-        when(pessoaRepository.existsByEmail("maria@uni.br")).thenReturn(false);
-        when(pessoaRepository.existsByCpf("123.456.789-00")).thenReturn(false);
+        when(alunoRepository.existsByEmail("maria@uni.br")).thenReturn(false);
+        when(alunoRepository.existsByCpf("123.456.789-00")).thenReturn(false);
         when(departamentoRepository.findById(1L)).thenReturn(Optional.of(dados.getDepartamento()));
         when(passwordEncoder.encode("senha123")).thenReturn("hash");
         when(alunoRepository.save(any(Aluno.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -82,7 +79,7 @@ class AlunoServiceTest {
     @Test
     void deveRejeitarEmailDuplicado() {
         Aluno dados = novoAlunoValido();
-        when(pessoaRepository.existsByEmail("maria@uni.br")).thenReturn(true);
+        when(alunoRepository.existsByEmail("maria@uni.br")).thenReturn(true);
 
         assertThatThrownBy(() -> service.criar(dados))
                 .isInstanceOf(ConflictException.class);

@@ -144,6 +144,8 @@ public class TurmaService {
             throw new BusinessException("Professor é obrigatório.");
         }
         return professorRepository.findById(referencia.getId())
+                .filter(Professor.class::isInstance)
+                .map(Professor.class::cast)
                 .orElseThrow(() -> new ResourceNotFoundException("Professor", referencia.getId()));
     }
 }

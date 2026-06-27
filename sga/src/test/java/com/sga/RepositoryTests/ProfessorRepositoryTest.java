@@ -1,5 +1,6 @@
 package com.sga.RepositoryTests;
 
+import com.sga.model.Pessoa;
 import com.sga.model.Professor;
 import com.sga.model.enums.Role;
 import com.sga.repository.ProfessorRepository;
@@ -36,11 +37,11 @@ class ProfessorRepositoryTest {
     void deveBuscarProfessorPorEmail() {
         criarProfessor("Ana Lima", "ana@uni.br");
 
-        Optional<Professor> resultado = repository.findByEmail("ana@uni.br");
+        Optional<Pessoa> resultado = repository.findByEmail("ana@uni.br");
 
         assertThat(resultado).isPresent();
         assertThat(resultado.get()).isInstanceOf(Professor.class);
-        assertThat(resultado.get().getTitulacao()).isEqualTo("Doutor");
+        assertThat(((Professor) resultado.get()).getTitulacao()).isEqualTo("Doutor");
     }
 
     @Test
