@@ -35,7 +35,7 @@ export default function LoginPage() {
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "", senha: "" },
   });
 
   // Usuário já logado não precisa ver o login
@@ -98,7 +98,7 @@ export default function LoginPage() {
                 />
                 <FormField
                   control={form.control}
-                  name="password"
+                  name="senha"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Senha</FormLabel>

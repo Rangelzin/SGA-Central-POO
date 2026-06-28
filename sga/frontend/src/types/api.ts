@@ -27,7 +27,7 @@ export interface ApiError {
 // Auth (RNF-02)
 export interface LoginInput {
   email: string;
-  password: string;
+  senha: string;
 }
 
 export interface LoginResponse {

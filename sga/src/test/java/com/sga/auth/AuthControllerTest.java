@@ -47,8 +47,8 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.acessToken").isNotEmpty())
-                .andExpect(jsonPath("$.expiresIN").value(3600));
+                .andExpect(jsonPath("$.token").isNotEmpty())
+                .andExpect(jsonPath("$.expiresIn").value(3600));
     }
 
     @Test
@@ -162,6 +162,6 @@ class AuthControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        return objectMapper.readTree(response).get("acessToken").asText();
+        return objectMapper.readTree(response).get("token").asText();
     }
 }
