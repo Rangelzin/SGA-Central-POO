@@ -64,6 +64,7 @@ public class AuthService {
                 .expiresAt(Instant.now().plusSeconds(ACCESS_TOKEN_EXPIRY))
                 .claim("email", pessoa.getEmail())
                 .claim("pessoaId", pessoa.getId().toString())
+                .claim("role", pessoa.getRole().name())
                 .claim("scope", scopes)
                 .build();
 
