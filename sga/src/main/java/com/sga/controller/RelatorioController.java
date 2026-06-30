@@ -58,13 +58,13 @@ public class RelatorioController {
     }
 
     /**
-     * GET /api/relatorios/turma/{id}/pdf
-     * Exporta o relatório da turma como PDF (HTML simples → bytes).
+     * GET /api/relatorios/turma/{id}/html
+     * Exporta o relatório da turma como HTML (download).
      * Para um PDF real, substitua o conteúdo por uma biblioteca como iText/Jasper.
      */
-    @GetMapping("/turma/{id}/pdf")
+    @GetMapping("/turma/{id}/html")
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
-    public ResponseEntity<byte[]> relatorioTurmaPdf(@PathVariable UUID id) {
+    public ResponseEntity<byte[]> relatorioTurmaHtml(@PathVariable UUID id) {
         RelatorioService.ResumoAprovacao resumo = relatorioService.resumoAprovacaoTurma(id);
         List<Matriculado> matriculas = relatorioService.relatorioTurma(id);
 
