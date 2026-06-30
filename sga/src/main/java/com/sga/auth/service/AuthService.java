@@ -71,7 +71,6 @@ public class AuthService {
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
-
     private String mapRoleToFrontend(com.sga.model.enums.Role role) {
         return switch (role) {
             case ALUNO -> "STUDENT";
