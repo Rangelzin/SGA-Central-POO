@@ -107,10 +107,10 @@ public class RelatorioController {
 
         for (Matriculado m : matriculas) {
             sb.append("<tr>")
-                    .append("<td>").append(m.getAluno() != null ? m.getAluno().getNome() : "-").append("</td>")
-                    .append("<td>").append(m.getNota() != null ? m.getNota() : "-").append("</td>")
-                    .append("<td>").append(m.getFrequencia() != null ? m.getFrequencia() + "%" : "-").append("</td>")
-                    .append("<td>").append(m.getStatus()).append("</td>")
+                    .append("<td>").append(m.getAluno() != null ? org.springframework.web.util.HtmlUtils.htmlEscape(m.getAluno().getNome()) : "-").append("</td>")
+                    .append("<td>").append(m.getNota() != null ? org.springframework.web.util.HtmlUtils.htmlEscape(String.valueOf(m.getNota())) : "-").append("</td>")
+                    .append("<td>").append(m.getFrequencia() != null ? org.springframework.web.util.HtmlUtils.htmlEscape(m.getFrequencia() + "%") : "-").append("</td>")
+                    .append("<td>").append(m.getStatus() != null ? org.springframework.web.util.HtmlUtils.htmlEscape(String.valueOf(m.getStatus())) : "-").append("</td>")
                     .append("</tr>");
         }
 
