@@ -22,9 +22,6 @@ public class CustomSecurityService {
             return false;
         }
 
-        if (pessoaId.equals(id)) {
-            return true;
-        }
 
         return matriculadoRepository.findById(id)
                 .map(Matriculado::getAluno)
