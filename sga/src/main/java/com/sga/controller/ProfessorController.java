@@ -67,9 +67,7 @@ public class ProfessorController {
     public List<TurmaResponse> turmas(@PathVariable UUID id) {
         
         professorService.buscarPorId(id);
-        return turmaService.listar(Pageable.unpaged())
-                .stream()
-                .filter(t -> t.getProfessor() != null && t.getProfessor().getId().equals(id))
+        return turmaRepository.findTurmaByProfessor(id).stream()
                 .map(TurmaResponse::new)
                 .toList();
     }
