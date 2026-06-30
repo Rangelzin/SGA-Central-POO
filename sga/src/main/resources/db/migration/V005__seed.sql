@@ -19,16 +19,25 @@ VALUES ('INF0100', 'OBRIGATORIA', 64, NULL, 1),
        ('INF0200', 'OBRIGATORIA', 64, 'INF0100', 1);
 
 -- 3. PESSOAS (Usando UUIDs fixos para facilitar testes de API depois)
--- Senha padrão inserida: '123456' (Ideal trocar por Hash Bcrypt na hora de usar Auth real)
+-- Senha padrão: '123456'
+-- Hash bcrypt gerado com rounds=10: $2b$10$9SSxtLtbLktCWHf0v3mvtOfPgGreXoK1QFfklWk3h.K3EMoYXhe4C
+-- IMPORTANTE: Alterar senhas em produção!
 
--- 3.1 Professor (UUID: a1b2c3d4-e5f6-7890-1234-56789abcdef0)
+-- 3.1 Admin/Secretaria (UUID: c3d4e5f6-7890-1234-5678-9abcdef01234)
+INSERT INTO pessoa (id, nome, email, senha, role, matricula, cpf, data_nascimento) 
+VALUES ('c3d4e5f6-7890-1234-5678-9abcdef01234', 'Adm. Secretaria', 'admin@ufg.br', '$2b$10$9SSxtLtbLktCWHf0v3mvtOfPgGreXoK1QFfklWk3h.K3EMoYXhe4C', 'ADMIN', 'ADM001', '999.888.777-66', '1990-01-15');
+
+INSERT INTO admin (id) 
+VALUES ('c3d4e5f6-7890-1234-5678-9abcdef01234');
+
+-- 3.2 Professor (UUID: a1b2c3d4-e5f6-7890-1234-56789abcdef0)
 INSERT INTO pessoa (id, nome, email, senha, role, matricula, cpf, data_nascimento) 
 VALUES ('a1b2c3d4-e5f6-7890-1234-56789abcdef0', 'Prof. Alan Turing', 'alan@ufg.br', '$2b$10$9SSxtLtbLktCWHf0v3mvtOfPgGreXoK1QFfklWk3h.K3EMoYXhe4C', 'PROFESSOR', 'P001', '111.222.333-44', '1912-06-23');
 
 INSERT INTO professor (id, titulacao, departamento_id) 
 VALUES ('a1b2c3d4-e5f6-7890-1234-56789abcdef0', 'Doutor em Computação', 1);
 
--- 3.2 Aluno 1 (UUID: b2c3d4e5-f678-9012-3456-789abcdef012)
+-- 3.3 Aluno 1 (UUID: b2c3d4e5-f678-9012-3456-789abcdef012)
 INSERT INTO pessoa (id, nome, email, senha, role, matricula, cpf, data_nascimento) 
 VALUES ('b2c3d4e5-f678-9012-3456-789abcdef012', 'Ada Lovelace', 'ada@discente.ufg.br', '$2b$10$9SSxtLtbLktCWHf0v3mvtOfPgGreXoK1QFfklWk3h.K3EMoYXhe4C', 'ALUNO', 'A001', '555.666.777-88', '1815-12-10');
 

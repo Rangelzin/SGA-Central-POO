@@ -3,9 +3,9 @@ package com.sga.auth.service;
 import com.sga.auth.dto.LoginRequest;
 import com.sga.auth.dto.LoginResponse;
 import com.sga.auth.dto.MeResponse;
-import com.sga.auth.mapper.RoleScopeMapper;
 import com.sga.model.Pessoa;
 import com.sga.repository.PessoaRepository;
+import com.sga.auth.mapper.RoleScopeMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,8 +36,8 @@ public class AuthService {
         String token = gerarAccessToken(pessoa);
 
         return LoginResponse.builder()
-                .acessToken(token)
-                .expiresIN(ACCESS_TOKEN_EXPIRY)
+                .token(token)
+                .expiresIn(ACCESS_TOKEN_EXPIRY)
                 .build();
     }
 
@@ -56,6 +56,7 @@ public class AuthService {
 
     private String gerarAccessToken(Pessoa pessoa) {
         List<String> scopes = roleScopeMapper.getScopes(pessoa.getRole());
+        String roleStr = mapRoleToFrontend(pessoa.getRole());
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("sga-backend")
@@ -64,10 +65,17 @@ public class AuthService {
                 .expiresAt(Instant.now().plusSeconds(ACCESS_TOKEN_EXPIRY))
                 .claim("email", pessoa.getEmail())
                 .claim("pessoaId", pessoa.getId().toString())
-                .claim("role", pessoa.getRole().name())
+                .claim("role", roleStr)
                 .claim("scope", scopes)
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+    private String mapRoleToFrontend(com.sga.model.enums.Role role) {
+        return switch (role) {
+            case ALUNO -> "STUDENT";
+            case PROFESSOR -> "TEACHER";
+            case ADMIN -> "ADMIN";
+        };
     }
 }

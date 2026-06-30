@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@PrimaryKeyJoinColumn(name = "id")
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "professor")
 public class Professor extends Pessoa {
     @NotBlank
     private String titulacao;

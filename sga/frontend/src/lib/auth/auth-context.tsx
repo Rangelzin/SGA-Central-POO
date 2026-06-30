@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { jwtDecode } from "jwt-decode";
 import { api, TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from "@/lib/api/client";
 import type { LoginInput, LoginResponse } from "@/types/api";
 import type { Person, Role } from "@/types/domain";
@@ -25,51 +26,77 @@ interface AuthContextValue {
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
+/**
+ * Extrai dados do JWT e cria um objeto Person
+ * Claims esperados: email, sub (nome), pessoaId, role, scope
+ */
+function extractUserFromToken(token: string): Person | null {
+  try {
+    const decoded = jwtDecode<{
+      email: string;
+      sub: string; // nome
+      pessoaId: string; // uuid
+      role: "ADMIN" | "TEACHER" | "STUDENT"; // role direto do JWT
+      scope: string[]; // roles/scopes
+    }>(token);
+
+    return {
+      uuid: decoded.pessoaId,
+      name: decoded.sub,
+      email: decoded.email,
+      role: decoded.role,
+      enrollmentCode: "",
+      cpf: "",
+      birthDate: "",
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Person | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // TEMPORÁRIO: Desabilita hidratação de sessão para forçar tela de login
-  // TODO: Remover quando JWT estiver implementado no backend (ALTA-6)
+  // Carrega a sessão do localStorage e sincroniza com o backend via GET /auth/me
   useEffect(() => {
-    // const storedToken = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    // const storedUser = window.localStorage.getItem(USER_STORAGE_KEY);
+    const storedToken = window.localStorage.getItem(TOKEN_STORAGE_KEY);
 
-    // if (!storedToken || !storedUser) {
-    //   setIsLoading(false);
-    //   return;
-    // }
+    if (!storedToken) {
+      setIsLoading(false);
+      return;
+    }
 
-    // setToken(storedToken);
-    // try {
-    //   setUser(JSON.parse(storedUser) as Person);
-    // } catch {
-    //   window.localStorage.removeItem(USER_STORAGE_KEY);
-    // }
+    setToken(storedToken);
+    const extractedUser = extractUserFromToken(storedToken);
+    if (extractedUser) {
+      setUser(extractedUser);
+    }
 
-    // api
-    //   .get<Person>("/auth/me")
-    //   .then((response) => {
-    //     setUser(response.data);
-    //     window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(response.data));
-    //   })
-    //   .catch(() => {
-    //     // 401 já é tratado pelo interceptor (limpa sessão e redireciona)
-    //   })
-    //   .finally(() => setIsLoading(false));
-
-    // Força sempre ir para tela de login (sem backend JWT ainda)
-    setIsLoading(false);
+    api
+      .get<Person>("/auth/me")
+      .then((response) => {
+        setUser(response.data);
+        window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(response.data));
+      })
+      .catch(() => {
+        // 401 já é tratado pelo interceptor (limpa sessão e redireciona)
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const login = useCallback(async (input: LoginInput) => {
     const { data } = await api.post<LoginResponse>("/auth/login", input);
     window.localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-    window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
     setToken(data.token);
-    setUser(data.user);
-    return data.user;
+    
+    const user = extractUserFromToken(data.token);
+    if (user) {
+      setUser(user);
+      return user;
+    }
+    throw new Error("Falha ao decodificar token");
   }, []);
 
   const logout = useCallback(async () => {
