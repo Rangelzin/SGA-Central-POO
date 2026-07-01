@@ -9,6 +9,11 @@ import com.sga.model.Turma;
 import com.sga.model.enums.StatusMatricula;
 import com.sga.service.MatriculaService;
 import com.sga.service.TurmaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +30,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("api/turmas")
 @RequiredArgsConstructor
+@Tag(name = "Turmas", description = "Gerenciamento de turmas, alunos matriculados e vagas disponíveis")
+@SecurityRequirement(name = "bearerAuth")
 public class TurmaController {
 
     private final TurmaService turmaService;
@@ -32,6 +39,11 @@ public class TurmaController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @Operation(summary = "Lista turmas paginado")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Página de turmas retornada"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado")
+    })
     public Page<TurmaResponse> listar(
             @PageableDefault(size = 20, sort = "codigo") Pageable pageable) {
         return turmaService.listar(pageable).map(TurmaResponse::new);
@@ -40,18 +52,34 @@ public class TurmaController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Cria nova turma", description = "Requer ADMIN.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Turma criada"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    })
     public TurmaResponse criar(@RequestBody @Valid TurmaRequest request) {
         return new TurmaResponse(turmaService.criar(toModel(request)));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @Operation(summary = "Busca turma por ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Turma encontrada"),
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+    })
     public TurmaResponse detalhar(@PathVariable UUID id) {
         return new TurmaResponse(turmaService.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Atualiza turma", description = "Requer ADMIN.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Turma atualizada"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+    })
     public TurmaResponse atualizar(@PathVariable UUID id,
                                    @RequestBody @Valid TurmaRequest request) {
         return new TurmaResponse(turmaService.atualizar(id, toModel(request)));
@@ -60,12 +88,22 @@ public class TurmaController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Remove turma", description = "Requer ADMIN.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Turma removida"),
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+    })
     public void deletar(@PathVariable UUID id) {
         turmaService.deletar(id);
     }
 
     @GetMapping("/{id}/alunos")
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @Operation(summary = "Lista alunos matriculados na turma")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Alunos listados"),
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+    })
     public List<AlunoResponse> alunos(@PathVariable UUID id) {
         return turmaService.listarAlunos(id)
                 .stream()
@@ -75,6 +113,11 @@ public class TurmaController {
 
     @GetMapping("/{id}/vagas")
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @Operation(summary = "Consulta vagas disponíveis na turma")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Informações de vagas retornadas"),
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+    })
     public Map<String, Object> vagas(@PathVariable UUID id) {
         Turma turma = turmaService.buscarPorId(id);
         long matriculasAtivas = matriculaService.listarPorTurma(id).stream()

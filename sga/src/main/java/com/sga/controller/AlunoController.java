@@ -5,6 +5,11 @@ import com.sga.controller.dto.AlunoResponse;
 import com.sga.model.Aluno;
 import com.sga.model.Departamento;
 import com.sga.service.AlunoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,12 +24,20 @@ import java.util.UUID;
 @RestController
 @RequestMapping("api/alunos")
 @RequiredArgsConstructor
+@Tag(name = "Alunos", description = "Gerenciamento de alunos (UC-01)")
+@SecurityRequirement(name = "bearerAuth")
 public class AlunoController {
 
     private final AlunoService alunoService;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @Operation(summary = "Lista alunos paginado", description = "Filtra por nome (opcional). Requer ADMIN ou PROFESSOR.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Página de alunos retornada"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão")
+    })
     public Page<AlunoResponse> listar(
             @RequestParam(required = false) String nome,
             @PageableDefault(size = 20, sort = "nome") Pageable pageable) {
@@ -34,18 +47,35 @@ public class AlunoController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Cria novo aluno", description = "Requer ADMIN.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Aluno criado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado")
+    })
     public AlunoResponse criar(@RequestBody @Valid AlunoRequest request) {
         return new AlunoResponse(alunoService.criar(toModel(request)));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @Operation(summary = "Busca aluno por ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Aluno encontrado"),
+            @ApiResponse(responseCode = "404", description = "Aluno não encontrado")
+    })
     public AlunoResponse detalhar(@PathVariable UUID id) {
         return new AlunoResponse(alunoService.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Atualiza aluno", description = "Requer ADMIN.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Aluno atualizado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "404", description = "Aluno não encontrado")
+    })
     public AlunoResponse atualizar(@PathVariable UUID id,
                                    @RequestBody @Valid AlunoRequest request) {
         return new AlunoResponse(alunoService.atualizar(id, toModel(request)));
@@ -54,6 +84,11 @@ public class AlunoController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Remove aluno", description = "Requer ADMIN.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Aluno removido"),
+            @ApiResponse(responseCode = "404", description = "Aluno não encontrado")
+    })
     public void deletar(@PathVariable UUID id) {
         alunoService.deletar(id);
     }

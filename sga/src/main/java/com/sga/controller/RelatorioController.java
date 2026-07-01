@@ -3,6 +3,11 @@ package com.sga.controller;
 import com.sga.controller.dto.MatriculaResponse;
 import com.sga.model.Matriculado;
 import com.sga.service.RelatorioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,16 +25,19 @@ import java.util.UUID;
 @RestController
 @RequestMapping("api/relatorios")
 @RequiredArgsConstructor
+@Tag(name = "Relatórios", description = "Histórico acadêmico e relatórios de desempenho de turma (UC-06, UC-07)")
+@SecurityRequirement(name = "bearerAuth")
 public class RelatorioController {
 
     private final RelatorioService relatorioService;
 
-    /**
-     * GET /api/relatorios/historico
-     * Retorna o histórico acadêmico do aluno autenticado.
-     */
     @GetMapping("/historico")
     @PreAuthorize("hasRole('ALUNO')")
+    @Operation(summary = "Histórico acadêmico do aluno autenticado", description = "Retorna todas as matrículas do aluno logado. Requer ALUNO.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Histórico retornado"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão")
+    })
     public List<MatriculaResponse> historico(@AuthenticationPrincipal Jwt jwt) {
         UUID alunoId = UUID.fromString(jwt.getClaim("pessoaId"));
         return relatorioService.historicoAluno(alunoId)
@@ -38,12 +46,13 @@ public class RelatorioController {
                 .toList();
     }
 
-    /**
-     * GET /api/relatorios/turma/{id}
-     * Relatório completo (JSON) de uma turma — aprovações, reprovações etc.
-     */
     @GetMapping("/turma/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @Operation(summary = "Relatório de desempenho de turma (JSON)", description = "Retorna aprovações, reprovações e percentual. Requer ADMIN ou PROFESSOR.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Relatório gerado"),
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+    })
     public Map<String, Object> relatorioTurma(@PathVariable UUID id) {
         RelatorioService.ResumoAprovacao resumo = relatorioService.resumoAprovacaoTurma(id);
         List<MatriculaResponse> matriculas = relatorioService.relatorioTurma(id)
@@ -57,13 +66,13 @@ public class RelatorioController {
         );
     }
 
-    /**
-     * GET /api/relatorios/turma/{id}/html
-     * Exporta o relatório da turma como HTML (download).
-     * Para um PDF real, substitua o conteúdo por uma biblioteca como iText/Jasper.
-     */
     @GetMapping("/turma/{id}/html")
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @Operation(summary = "Exporta relatório de turma em HTML", description = "Retorna o relatório como arquivo HTML para download. Requer ADMIN ou PROFESSOR.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Arquivo HTML retornado"),
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+    })
     public ResponseEntity<byte[]> relatorioTurmaHtml(@PathVariable UUID id) {
         RelatorioService.ResumoAprovacao resumo = relatorioService.resumoAprovacaoTurma(id);
         List<Matriculado> matriculas = relatorioService.relatorioTurma(id);
