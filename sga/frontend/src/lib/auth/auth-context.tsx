@@ -13,6 +13,43 @@ import { api, TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from "@/lib/api/client";
 import type { LoginInput, LoginResponse } from "@/types/api";
 import type { Person, Role } from "@/types/domain";
 
+/**
+ * O backend usa ALUNO / PROFESSOR no enum Role do Java, mas o frontend
+ * espera STUDENT / TEACHER. O JWT já faz esse mapeamento via
+ * mapRoleToFrontend(), porém o GET /auth/me devolve o valor bruto do
+ * enum. Esta função normaliza qualquer resposta da API.
+ */
+const backendRoleMap: Record<string, Role> = {
+  ALUNO: "STUDENT",
+  PROFESSOR: "TEACHER",
+  ADMIN: "ADMIN",
+  // valores já mapeados (vindos do JWT)
+  STUDENT: "STUDENT",
+  TEACHER: "TEACHER",
+};
+
+function normalizeRole(raw: string): Role {
+  return backendRoleMap[raw] ?? (raw as Role);
+}
+
+/**
+ * Normaliza a resposta da API (/auth/me) para o formato Person do frontend.
+ * O MeResponse do backend usa campos em português (id, nome) enquanto
+ * o frontend espera (uuid, name).
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeUser(data: any): Person {
+  return {
+    uuid: data.uuid ?? data.id ?? "",
+    name: data.name ?? data.nome ?? "",
+    email: data.email ?? "",
+    role: normalizeRole(data.role),
+    enrollmentCode: data.enrollmentCode ?? "",
+    cpf: data.cpf ?? "",
+    birthDate: data.birthDate ?? "",
+  };
+}
+
 interface AuthContextValue {
   user: Person | null;
   token: string | null;
@@ -36,7 +73,7 @@ function extractUserFromToken(token: string): Person | null {
       email: string;
       sub: string; // nome
       pessoaId: string; // uuid
-      role: "ADMIN" | "TEACHER" | "STUDENT"; // role direto do JWT
+      role: string; // ALUNO | PROFESSOR | ADMIN (enum Java)
       scope: string[]; // roles/scopes
     }>(token);
 
@@ -44,7 +81,7 @@ function extractUserFromToken(token: string): Person | null {
       uuid: decoded.pessoaId,
       name: decoded.sub,
       email: decoded.email,
-      role: decoded.role,
+      role: normalizeRole(decoded.role),
       enrollmentCode: "",
       cpf: "",
       birthDate: "",
@@ -77,8 +114,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     api
       .get<Person>("/auth/me")
       .then((response) => {
-        setUser(response.data);
-        window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(response.data));
+        const normalized = normalizeUser(response.data);
+        setUser(normalized);
+        window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(normalized));
       })
       .catch(() => {
         // 401 já é tratado pelo interceptor (limpa sessão e redireciona)

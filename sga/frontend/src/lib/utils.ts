@@ -45,7 +45,8 @@ export function formatAttendance(attendance: number | null | undefined): string 
   return `${attendance.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
 }
 
-export function getInitials(name: string): string {
+export function getInitials(name: string | undefined | null): string {
+  if (!name) return "";
   const parts = name.trim().split(/\s+/);
   const first = parts[0]?.[0] ?? "";
   const last = parts.length > 1 ? (parts[parts.length - 1][0] ?? "") : "";

@@ -56,7 +56,6 @@ public class AuthService {
 
     private String gerarAccessToken(Pessoa pessoa) {
         List<String> scopes = roleScopeMapper.getScopes(pessoa.getRole());
-        String roleStr = mapRoleToFrontend(pessoa.getRole());
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("sga-backend")
@@ -65,17 +64,10 @@ public class AuthService {
                 .expiresAt(Instant.now().plusSeconds(ACCESS_TOKEN_EXPIRY))
                 .claim("email", pessoa.getEmail())
                 .claim("pessoaId", pessoa.getId().toString())
-                .claim("role", roleStr)
+                .claim("role", pessoa.getRole().name())
                 .claim("scope", scopes)
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-    }
-    private String mapRoleToFrontend(com.sga.model.enums.Role role) {
-        return switch (role) {
-            case ALUNO -> "STUDENT";
-            case PROFESSOR -> "TEACHER";
-            case ADMIN -> "ADMIN";
-        };
     }
 }

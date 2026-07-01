@@ -2,9 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { api, getApiMessage } from "@/lib/api/client";
-import type { ListQuery, Page, TeacherInput } from "@/types/api";
-import type { Teacher } from "@/types/domain";
+import { teacherService } from "@/lib/api/services";
+import { getApiMessage } from "@/lib/api/client";
+import type { ListQuery, TeacherInput } from "@/types/api";
 
 export const teacherKeys = {
   all: ["teachers"] as const,
@@ -15,15 +15,14 @@ export const teacherKeys = {
 export function useTeachers(query: ListQuery) {
   return useQuery({
     queryKey: teacherKeys.list(query),
-    queryFn: () =>
-      api.get<Page<Teacher>>("/professores", { params: query }).then((r) => r.data),
+    queryFn: () => teacherService.list(query),
   });
 }
 
 export function useTeacher(id: string | undefined) {
   return useQuery({
     queryKey: teacherKeys.detail(id ?? ""),
-    queryFn: () => api.get<Teacher>(`/professores/${id}`).then((r) => r.data),
+    queryFn: () => teacherService.get(id!),
     enabled: Boolean(id),
   });
 }
@@ -31,8 +30,7 @@ export function useTeacher(id: string | undefined) {
 export function useCreateTeacher() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: TeacherInput) =>
-      api.post<Teacher>("/professores", input).then((r) => r.data),
+    mutationFn: (input: TeacherInput) => teacherService.create(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: teacherKeys.all });
       toast.success("Professor criado com sucesso.");
@@ -44,8 +42,7 @@ export function useCreateTeacher() {
 export function useUpdateTeacher(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: TeacherInput) =>
-      api.put<Teacher>(`/professores/${id}`, input).then((r) => r.data),
+    mutationFn: (input: TeacherInput) => teacherService.update(id, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: teacherKeys.all });
       toast.success("Professor atualizado com sucesso.");
@@ -57,7 +54,7 @@ export function useUpdateTeacher(id: string) {
 export function useDeleteTeacher() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/professores/${id}`),
+    mutationFn: (id: string) => teacherService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: teacherKeys.all });
       toast.success("Professor removido.");

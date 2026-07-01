@@ -2,9 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { api, getApiMessage } from "@/lib/api/client";
-import type { ListQuery, Page, SubjectInput } from "@/types/api";
-import type { Subject } from "@/types/domain";
+import { subjectService } from "@/lib/api/services";
+import { getApiMessage } from "@/lib/api/client";
+import type { ListQuery, SubjectInput } from "@/types/api";
 
 export const subjectKeys = {
   all: ["subjects"] as const,
@@ -15,15 +15,14 @@ export const subjectKeys = {
 export function useSubjects(query: ListQuery) {
   return useQuery({
     queryKey: subjectKeys.list(query),
-    queryFn: () =>
-      api.get<Page<Subject>>("/disciplinas", { params: query }).then((r) => r.data),
+    queryFn: () => subjectService.list(query),
   });
 }
 
 export function useSubject(id: string | undefined) {
   return useQuery({
     queryKey: subjectKeys.detail(id ?? ""),
-    queryFn: () => api.get<Subject>(`/disciplinas/${id}`).then((r) => r.data),
+    queryFn: () => subjectService.get(id!),
     enabled: Boolean(id),
   });
 }
@@ -31,8 +30,7 @@ export function useSubject(id: string | undefined) {
 export function useCreateSubject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: SubjectInput) =>
-      api.post<Subject>("/disciplinas", input).then((r) => r.data),
+    mutationFn: (input: SubjectInput) => subjectService.create(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: subjectKeys.all });
       toast.success("Disciplina criada com sucesso.");
@@ -44,8 +42,7 @@ export function useCreateSubject() {
 export function useUpdateSubject(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: SubjectInput) =>
-      api.put<Subject>(`/disciplinas/${id}`, input).then((r) => r.data),
+    mutationFn: (input: SubjectInput) => subjectService.update(id, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: subjectKeys.all });
       toast.success("Disciplina atualizada com sucesso.");
@@ -57,8 +54,7 @@ export function useUpdateSubject(id: string) {
 export function useActivateSubject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) =>
-      api.post<Subject>(`/disciplinas/${id}/ativar`).then((r) => r.data),
+    mutationFn: (id: string) => subjectService.activate(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: subjectKeys.all });
       toast.success("Disciplina ativada.");
@@ -70,7 +66,7 @@ export function useActivateSubject() {
 export function useDeleteSubject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/disciplinas/${id}`),
+    mutationFn: (id: string) => subjectService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: subjectKeys.all });
       toast.success("Disciplina removida.");

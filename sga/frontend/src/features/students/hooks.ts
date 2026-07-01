@@ -2,9 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { studentService } from "@/lib/api/services";
 import { api, getApiMessage } from "@/lib/api/client";
-import type { ListQuery, Page, StudentInput, Transcript } from "@/types/api";
-import type { Enrollment, Student } from "@/types/domain";
+import type { ListQuery, StudentInput, Transcript } from "@/types/api";
+import type { Enrollment } from "@/types/domain";
 
 export const studentKeys = {
   all: ["students"] as const,
@@ -17,15 +18,14 @@ export const studentKeys = {
 export function useStudents(query: ListQuery) {
   return useQuery({
     queryKey: studentKeys.list(query),
-    queryFn: () =>
-      api.get<Page<Student>>("/alunos", { params: query }).then((r) => r.data),
+    queryFn: () => studentService.list(query),
   });
 }
 
 export function useStudent(id: string | undefined) {
   return useQuery({
     queryKey: studentKeys.detail(id ?? ""),
-    queryFn: () => api.get<Student>(`/alunos/${id}`).then((r) => r.data),
+    queryFn: () => studentService.get(id!),
     enabled: Boolean(id),
   });
 }
@@ -50,8 +50,7 @@ export function useStudentEnrollments(id: string | undefined) {
 export function useCreateStudent() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: StudentInput) =>
-      api.post<Student>("/alunos", input).then((r) => r.data),
+    mutationFn: (input: StudentInput) => studentService.create(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
       toast.success("Aluno criado com sucesso.");
@@ -63,8 +62,7 @@ export function useCreateStudent() {
 export function useUpdateStudent(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: StudentInput) =>
-      api.put<Student>(`/alunos/${id}`, input).then((r) => r.data),
+    mutationFn: (input: StudentInput) => studentService.update(id, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
       toast.success("Aluno atualizado com sucesso.");
@@ -76,7 +74,7 @@ export function useUpdateStudent(id: string) {
 export function useDeleteStudent() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/alunos/${id}`),
+    mutationFn: (id: string) => studentService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: studentKeys.all });
       toast.success("Aluno removido.");

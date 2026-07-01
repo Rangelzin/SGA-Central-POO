@@ -152,7 +152,7 @@ docker compose up --build
 ```
 
 4. **Acesse a aplicação:**
-- Backend API: http://localhost:8080
+- Backend API: http://localhost:8081
 - PostgreSQL: localhost:5432
 
 
