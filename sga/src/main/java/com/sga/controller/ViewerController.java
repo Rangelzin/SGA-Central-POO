@@ -9,12 +9,12 @@ public class ViewerController {
 
     @GetMapping(value = {"/"})
     public String forwardHome() {
-        return "forward:/index.html";
+        return "forward:/app/index.html";
     }
 
     @GetMapping(value = {"/login"})
     public String forwardLogin() {
-        return "forward:/login/index.html";
+        return "forward:/app/login.html";
     }
 
     @GetMapping(value = {
@@ -33,7 +33,7 @@ public class ViewerController {
             "/teacher/classes"
     })
     public String forwardStaticAppRoutes(HttpServletRequest request) {
-        return "forward:" + request.getRequestURI() + "/index.html";
+        return "forward:/app" + request.getRequestURI() + ".html";
     }
 
     @GetMapping(value = {
@@ -46,6 +46,6 @@ public class ViewerController {
             "/teacher/classes/{id:[^.]+}/report"
     })
     public String forwardDynamicAppRoutes() {
-        return "forward:/index.html";
+        return "forward:/app/index.html";
     }
 }
