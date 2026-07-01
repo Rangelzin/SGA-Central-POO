@@ -1,6 +1,7 @@
 package com.sga.controller;
 
 import com.sga.controller.dto.AlunoResponse;
+import com.sga.controller.dto.ErrorResponse;
 import com.sga.controller.dto.TurmaRequest;
 import com.sga.controller.dto.TurmaResponse;
 import com.sga.model.Disciplina;
@@ -10,6 +11,8 @@ import com.sga.model.enums.StatusMatricula;
 import com.sga.service.MatriculaService;
 import com.sga.service.TurmaService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -42,7 +45,8 @@ public class TurmaController {
     @Operation(summary = "Lista turmas paginado")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Página de turmas retornada"),
-            @ApiResponse(responseCode = "401", description = "Não autenticado")
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public Page<TurmaResponse> listar(
             @PageableDefault(size = 20, sort = "codigo") Pageable pageable) {
@@ -55,7 +59,8 @@ public class TurmaController {
     @Operation(summary = "Cria nova turma", description = "Requer ADMIN.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Turma criada"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+            @ApiResponse(responseCode = "400", description = "Dados inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public TurmaResponse criar(@RequestBody @Valid TurmaRequest request) {
         return new TurmaResponse(turmaService.criar(toModel(request)));
@@ -66,7 +71,8 @@ public class TurmaController {
     @Operation(summary = "Busca turma por ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Turma encontrada"),
-            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public TurmaResponse detalhar(@PathVariable UUID id) {
         return new TurmaResponse(turmaService.buscarPorId(id));
@@ -77,8 +83,10 @@ public class TurmaController {
     @Operation(summary = "Atualiza turma", description = "Requer ADMIN.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Turma atualizada"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+            @ApiResponse(responseCode = "400", description = "Dados inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public TurmaResponse atualizar(@PathVariable UUID id,
                                    @RequestBody @Valid TurmaRequest request) {
@@ -90,8 +98,10 @@ public class TurmaController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Remove turma", description = "Requer ADMIN.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Turma removida"),
-            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+            @ApiResponse(responseCode = "204", description = "Turma removida",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public void deletar(@PathVariable UUID id) {
         turmaService.deletar(id);
@@ -102,7 +112,8 @@ public class TurmaController {
     @Operation(summary = "Lista alunos matriculados na turma")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Alunos listados"),
-            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public List<AlunoResponse> alunos(@PathVariable UUID id) {
         return turmaService.listarAlunos(id)
@@ -116,7 +127,8 @@ public class TurmaController {
     @Operation(summary = "Consulta vagas disponíveis na turma")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Informações de vagas retornadas"),
-            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public Map<String, Object> vagas(@PathVariable UUID id) {
         Turma turma = turmaService.buscarPorId(id);

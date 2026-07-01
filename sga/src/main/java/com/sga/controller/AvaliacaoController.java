@@ -1,12 +1,15 @@
 package com.sga.controller;
 
 import com.sga.controller.dto.AvaliacaoResponse;
+import com.sga.controller.dto.ErrorResponse;
 import com.sga.controller.dto.FrequenciaRequest;
 import com.sga.controller.dto.MatriculaResponse;
 import com.sga.controller.dto.NotaRequest;
 import com.sga.repository.AvaliaRepository;
 import com.sga.service.AvaliacaoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -35,8 +38,10 @@ public class AvaliacaoController {
     @Operation(summary = "Registra nota de avaliação", description = "Cria uma avaliação com nota para um matriculado. Requer ADMIN ou PROFESSOR.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Nota registrada"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "404", description = "Matrícula não encontrada")
+            @ApiResponse(responseCode = "400", description = "Dados inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Matrícula não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public AvaliacaoResponse registrarNota(@RequestBody @Valid NotaRequest request) {
         return new AvaliacaoResponse(
@@ -55,8 +60,10 @@ public class AvaliacaoController {
     @Operation(summary = "Registra frequência do aluno", description = "Atualiza a frequência (0-100) de um matriculado. Requer ADMIN ou PROFESSOR.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Frequência registrada"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "404", description = "Matrícula não encontrada")
+            @ApiResponse(responseCode = "400", description = "Dados inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Matrícula não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public MatriculaResponse registrarFrequencia(@RequestBody @Valid FrequenciaRequest request) {
         return new MatriculaResponse(
@@ -72,7 +79,8 @@ public class AvaliacaoController {
     @Operation(summary = "Busca avaliação por ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Avaliação encontrada"),
-            @ApiResponse(responseCode = "404", description = "Avaliação não encontrada")
+            @ApiResponse(responseCode = "404", description = "Avaliação não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public AvaliacaoResponse detalhar(@PathVariable UUID id) {
         return avaliaRepository.findById(id)

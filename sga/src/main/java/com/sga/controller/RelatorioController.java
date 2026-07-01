@@ -1,9 +1,12 @@
 package com.sga.controller;
 
+import com.sga.controller.dto.ErrorResponse;
 import com.sga.controller.dto.MatriculaResponse;
 import com.sga.model.Matriculado;
 import com.sga.service.RelatorioService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -36,7 +39,8 @@ public class RelatorioController {
     @Operation(summary = "Histórico acadêmico do aluno autenticado", description = "Retorna todas as matrículas do aluno logado. Requer ALUNO.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Histórico retornado"),
-            @ApiResponse(responseCode = "403", description = "Sem permissão")
+            @ApiResponse(responseCode = "403", description = "Sem permissão",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public List<MatriculaResponse> historico(@AuthenticationPrincipal Jwt jwt) {
         UUID alunoId = UUID.fromString(jwt.getClaim("pessoaId"));
@@ -51,7 +55,8 @@ public class RelatorioController {
     @Operation(summary = "Relatório de desempenho de turma (JSON)", description = "Retorna aprovações, reprovações e percentual. Requer ADMIN ou PROFESSOR.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Relatório gerado"),
-            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public Map<String, Object> relatorioTurma(@PathVariable UUID id) {
         RelatorioService.ResumoAprovacao resumo = relatorioService.resumoAprovacaoTurma(id);
@@ -70,8 +75,10 @@ public class RelatorioController {
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
     @Operation(summary = "Exporta relatório de turma em HTML", description = "Retorna o relatório como arquivo HTML para download. Requer ADMIN ou PROFESSOR.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Arquivo HTML retornado"),
-            @ApiResponse(responseCode = "404", description = "Turma não encontrada")
+            @ApiResponse(responseCode = "200", description = "Arquivo HTML retornado",
+                    content = @Content(mediaType = "text/html")),
+            @ApiResponse(responseCode = "404", description = "Turma não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<byte[]> relatorioTurmaHtml(@PathVariable UUID id) {
         RelatorioService.ResumoAprovacao resumo = relatorioService.resumoAprovacaoTurma(id);

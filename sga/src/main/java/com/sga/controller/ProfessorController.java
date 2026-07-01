@@ -1,5 +1,6 @@
 package com.sga.controller;
 
+import com.sga.controller.dto.ErrorResponse;
 import com.sga.controller.dto.ProfessorRequest;
 import com.sga.controller.dto.ProfessorResponse;
 import com.sga.controller.dto.TurmaResponse;
@@ -8,6 +9,8 @@ import com.sga.model.Professor;
 import com.sga.repository.TurmaRepository;
 import com.sga.service.ProfessorService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -39,8 +42,10 @@ public class ProfessorController {
     @Operation(summary = "Lista professores paginado", description = "Filtra por nome (opcional). Requer ADMIN ou PROFESSOR.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Página de professores retornada"),
-            @ApiResponse(responseCode = "401", description = "Não autenticado"),
-            @ApiResponse(responseCode = "403", description = "Sem permissão")
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Sem permissão",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public Page<ProfessorResponse> listar(
             @RequestParam(required = false) String nome,
@@ -54,8 +59,10 @@ public class ProfessorController {
     @Operation(summary = "Cria novo professor", description = "Requer ADMIN.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Professor criado"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado")
+            @ApiResponse(responseCode = "400", description = "Dados inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ProfessorResponse criar(@RequestBody @Valid ProfessorRequest request) {
         return new ProfessorResponse(professorService.criar(toModel(request)));
@@ -66,7 +73,8 @@ public class ProfessorController {
     @Operation(summary = "Busca professor por ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Professor encontrado"),
-            @ApiResponse(responseCode = "404", description = "Professor não encontrado")
+            @ApiResponse(responseCode = "404", description = "Professor não encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ProfessorResponse detalhar(@PathVariable UUID id) {
         return new ProfessorResponse(professorService.buscarPorId(id));
@@ -77,8 +85,10 @@ public class ProfessorController {
     @Operation(summary = "Atualiza professor", description = "Requer ADMIN.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Professor atualizado"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "404", description = "Professor não encontrado")
+            @ApiResponse(responseCode = "400", description = "Dados inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Professor não encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ProfessorResponse atualizar(@PathVariable UUID id,
                                        @RequestBody @Valid ProfessorRequest request) {
@@ -90,8 +100,10 @@ public class ProfessorController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Remove professor", description = "Requer ADMIN.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Professor removido"),
-            @ApiResponse(responseCode = "404", description = "Professor não encontrado")
+            @ApiResponse(responseCode = "204", description = "Professor removido",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Professor não encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public void deletar(@PathVariable UUID id) {
         professorService.deletar(id);
@@ -102,10 +114,10 @@ public class ProfessorController {
     @Operation(summary = "Lista turmas do professor")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Turmas listadas"),
-            @ApiResponse(responseCode = "404", description = "Professor não encontrado")
+            @ApiResponse(responseCode = "404", description = "Professor não encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public List<TurmaResponse> turmas(@PathVariable UUID id) {
-
         professorService.buscarPorId(id);
         return turmaRepository.findTurmaByProfessor(id).stream()
                 .map(TurmaResponse::new)

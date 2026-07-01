@@ -2,12 +2,15 @@ package com.sga.controller;
 
 import com.sga.controller.dto.DisciplinaRequest;
 import com.sga.controller.dto.DisciplinaResponse;
+import com.sga.controller.dto.ErrorResponse;
 import com.sga.controller.dto.TurmaResponse;
 import com.sga.model.Departamento;
 import com.sga.model.Disciplina;
 import com.sga.repository.TurmaRepository;
 import com.sga.service.DisciplinaService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -38,7 +41,8 @@ public class DisciplinaController {
     @Operation(summary = "Lista disciplinas paginado")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Página de disciplinas retornada"),
-            @ApiResponse(responseCode = "401", description = "Não autenticado")
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public Page<DisciplinaResponse> listar(
             @PageableDefault(size = 20, sort = "codigo") Pageable pageable) {
@@ -51,8 +55,10 @@ public class DisciplinaController {
     @Operation(summary = "Cria nova disciplina", description = "Requer ADMIN.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Disciplina criada"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "409", description = "Código já cadastrado")
+            @ApiResponse(responseCode = "400", description = "Dados inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "Código já cadastrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public DisciplinaResponse criar(@RequestBody @Valid DisciplinaRequest request) {
         return new DisciplinaResponse(disciplinaService.criar(toModel(request)));
@@ -63,7 +69,8 @@ public class DisciplinaController {
     @Operation(summary = "Busca disciplina por ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Disciplina encontrada"),
-            @ApiResponse(responseCode = "404", description = "Disciplina não encontrada")
+            @ApiResponse(responseCode = "404", description = "Disciplina não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public DisciplinaResponse detalhar(@PathVariable Long id) {
         return new DisciplinaResponse(disciplinaService.buscarPorId(id));
@@ -74,8 +81,10 @@ public class DisciplinaController {
     @Operation(summary = "Atualiza disciplina", description = "Requer ADMIN.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Disciplina atualizada"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "404", description = "Disciplina não encontrada")
+            @ApiResponse(responseCode = "400", description = "Dados inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Disciplina não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public DisciplinaResponse atualizar(@PathVariable Long id,
                                         @RequestBody @Valid DisciplinaRequest request) {
@@ -87,8 +96,10 @@ public class DisciplinaController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Remove disciplina", description = "Requer ADMIN.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Disciplina removida"),
-            @ApiResponse(responseCode = "404", description = "Disciplina não encontrada")
+            @ApiResponse(responseCode = "204", description = "Disciplina removida",
+                    content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Disciplina não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public void deletar(@PathVariable Long id) {
         disciplinaService.deletar(id);
@@ -99,7 +110,8 @@ public class DisciplinaController {
     @Operation(summary = "Ativa ou reativa disciplina", description = "Requer ADMIN.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Disciplina ativada"),
-            @ApiResponse(responseCode = "404", description = "Disciplina não encontrada")
+            @ApiResponse(responseCode = "404", description = "Disciplina não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public DisciplinaResponse ativar(@PathVariable Long id) {
         return new DisciplinaResponse(disciplinaService.ativar(id));
@@ -110,10 +122,11 @@ public class DisciplinaController {
     @Operation(summary = "Lista turmas de uma disciplina")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Turmas listadas"),
-            @ApiResponse(responseCode = "404", description = "Disciplina não encontrada")
+            @ApiResponse(responseCode = "404", description = "Disciplina não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public List<TurmaResponse> turmas(@PathVariable Long id) {
-        disciplinaService.buscarPorId(id); // valida existência
+        disciplinaService.buscarPorId(id);
         return turmaRepository.findTurmaByDisciplina(id)
                 .stream()
                 .map(TurmaResponse::new)
