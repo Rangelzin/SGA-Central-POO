@@ -52,4 +52,4 @@ VALUES ('d4e5f678-9012-3456-789a-bcdef0123456', 'T01-2026', 'SEG 08:00-10:00', '
 
 -- 4.2 Matrícula do aluno na turma (UUID: e5f67890-1234-5678-9abc-def012345678)
 INSERT INTO matriculado (id, nota, status, frequencia, aluno_id, turma_id) 
-VALUES ('e5f67890-1234-5678-9abc-def012345678', NULL, 'ENROLLED', 0, 'b2c3d4e5-f678-9012-3456-789abcdef012', 'd4e5f678-9012-3456-789a-bcdef0123456');
+VALUES ('e5f67890-1234-5678-9abc-def012345678', NULL, 'ATIVA', 0, 'b2c3d4e5-f678-9012-3456-789abcdef012', 'd4e5f678-9012-3456-789a-bcdef0123456');

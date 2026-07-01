@@ -16,6 +16,10 @@ public class DisciplinaRequest {
     @Schema(description = "Código único da disciplina", example = "INF001")
     private String codigo;
 
+    @NotBlank(message = "Nome é obrigatório")
+    @Schema(description = "Nome da disciplina", example = "Algoritmos e Programação")
+    private String nome;
+
     @Schema(description = "Tipo: OBRIGATORIA, OPTATIVA ou NUCLEO_LIVRE", example = "OBRIGATORIA")
     private String tipo;
 
@@ -26,6 +30,9 @@ public class DisciplinaRequest {
 
     @Schema(description = "Código da disciplina pré-requisito (opcional)", example = "INF000")
     private String preRequisito;
+
+    @Schema(description = "Ementa da disciplina", example = "Fundamentos de algoritmos, estruturas de controle e abstração.")
+    private String ementa;
 
     @NotNull(message = "Departamento é obrigatório")
     @Schema(description = "Referência ao departamento responsável")

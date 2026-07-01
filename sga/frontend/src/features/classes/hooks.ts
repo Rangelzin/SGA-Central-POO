@@ -21,6 +21,17 @@ export function useClasses(query: ClassQuery) {
   });
 }
 
+export function useClassesWithOptions(
+  query: ClassQuery,
+  options?: { enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: classKeys.list(query),
+    queryFn: () => classService.list(query),
+    enabled: options?.enabled ?? true,
+  });
+}
+
 export function useClass(id: string | undefined) {
   return useQuery({
     queryKey: classKeys.detail(id ?? ""),

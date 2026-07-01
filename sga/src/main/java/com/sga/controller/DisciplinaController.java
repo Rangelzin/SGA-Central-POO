@@ -138,8 +138,10 @@ public class DisciplinaController {
     private Disciplina toModel(DisciplinaRequest req) {
         Disciplina disciplina = new Disciplina();
         disciplina.setCodigo(req.getCodigo());
+        disciplina.setNome(req.getNome());
         disciplina.setTipo(req.getTipo());
         disciplina.setCargaHoraria(req.getCargaHoraria());
+        disciplina.setEmenta(req.getEmenta());
         disciplina.setPreRequisito(req.getPreRequisito());
         if (req.getDepartamento() != null) {
             Departamento dep = new Departamento();

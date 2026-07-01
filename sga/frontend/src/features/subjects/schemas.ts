@@ -15,7 +15,7 @@ export const subjectTypeLabels: Record<string, string> = {
 export const subjectSchema = z.object({
   code: z.string().min(2, "Informe o código (ex.: CC101)."),
   name: z.string().min(3, "Informe o nome da disciplina."),
-  syllabus: z.string().min(10, "Descreva a ementa."),
+  syllabus: z.string().min(3, "Descreva a ementa."),
   workload: z
     .number("Informe a carga horária.")
     .int("Use horas inteiras.")

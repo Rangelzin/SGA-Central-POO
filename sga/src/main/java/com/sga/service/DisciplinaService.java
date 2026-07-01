@@ -38,12 +38,15 @@ public class DisciplinaService {
     @Transactional
     public Disciplina criar(Disciplina dados) {
         validarCodigoUnico(dados.getCodigo(), null);
+        validarNome(dados.getNome());
         validarCargaHoraria(dados.getCargaHoraria());
 
         Disciplina disciplina = new Disciplina();
         disciplina.setCodigo(dados.getCodigo());
+        disciplina.setNome(dados.getNome());
         disciplina.setTipo(dados.getTipo());
         disciplina.setCargaHoraria(dados.getCargaHoraria());
+        disciplina.setEmenta(dados.getEmenta());
         disciplina.setPreRequisito(dados.getPreRequisito());
         disciplina.setDepartamento(resolverDepartamento(dados.getDepartamento()));
 
@@ -57,11 +60,14 @@ public class DisciplinaService {
         Disciplina disciplina = buscarPorId(id);
 
         validarCodigoUnico(dados.getCodigo(), disciplina);
+        validarNome(dados.getNome());
         validarCargaHoraria(dados.getCargaHoraria());
 
         disciplina.setCodigo(dados.getCodigo());
+        disciplina.setNome(dados.getNome());
         disciplina.setTipo(dados.getTipo());
         disciplina.setCargaHoraria(dados.getCargaHoraria());
+        disciplina.setEmenta(dados.getEmenta());
         disciplina.setPreRequisito(dados.getPreRequisito());
 
         if (dados.getDepartamento() != null) {
@@ -122,6 +128,12 @@ public class DisciplinaService {
     private void validarCargaHoraria(Integer cargaHoraria) {
         if (cargaHoraria == null || cargaHoraria <= 0) {
             throw new BusinessException("Carga horária deve ser maior que zero.");
+        }
+    }
+
+    private void validarNome(String nome) {
+        if (nome == null || nome.isBlank()) {
+            throw new BusinessException("Nome da disciplina é obrigatório.");
         }
     }
 

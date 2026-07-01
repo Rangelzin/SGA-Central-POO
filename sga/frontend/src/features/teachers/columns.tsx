@@ -22,7 +22,7 @@ export function getTeacherColumns({
     {
       id: "department",
       header: "Departamento",
-      cell: ({ row }) => row.original.department.name,
+      cell: ({ row }) => row.original.department?.name ?? "-",
     },
     {
       accessorKey: "cpf",

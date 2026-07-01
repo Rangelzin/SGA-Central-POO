@@ -1,6 +1,7 @@
 import { api } from "@/lib/api/client";
 import type { Page, TeacherInput, ListQuery } from "@/types/api";
 import type { Teacher, Class } from "@/types/domain";
+import { mapClass, mapPage, mapTeacher } from "@/lib/api/services/mappers";
 
 class TeacherService {
   private readonly basePath = "/professores";
@@ -11,25 +12,43 @@ class TeacherService {
     if (query?.page !== undefined) params.append("page", String(query.page));
     if (query?.size !== undefined) params.append("size", String(query.size));
 
-    const { data } = await api.get<Page<Teacher>>(
+    const { data } = await api.get(
       `${this.basePath}${params.toString() ? `?${params}` : ""}`
     );
-    return data;
+    return mapPage(data, mapTeacher);
   }
 
   async get(id: string): Promise<Teacher> {
-    const { data } = await api.get<Teacher>(`${this.basePath}/${id}`);
-    return data;
+    const { data } = await api.get(`${this.basePath}/${id}`);
+    return mapTeacher(data);
   }
 
   async create(input: TeacherInput): Promise<Teacher> {
-    const { data } = await api.post<Teacher>(this.basePath, input);
-    return data;
+    const payload = {
+      nome: input.name,
+      email: input.email,
+      cpf: input.cpf,
+      dataNascimento: input.birthDate,
+      titulacao: input.title,
+      departamento: { id: input.departmentId },
+    };
+
+    const { data } = await api.post(this.basePath, payload);
+    return mapTeacher(data);
   }
 
   async update(id: string, input: TeacherInput): Promise<Teacher> {
-    const { data } = await api.put<Teacher>(`${this.basePath}/${id}`, input);
-    return data;
+    const payload = {
+      nome: input.name,
+      email: input.email,
+      cpf: input.cpf,
+      dataNascimento: input.birthDate,
+      titulacao: input.title,
+      departamento: { id: input.departmentId },
+    };
+
+    const { data } = await api.put(`${this.basePath}/${id}`, payload);
+    return mapTeacher(data);
   }
 
   async delete(id: string): Promise<void> {
@@ -37,8 +56,8 @@ class TeacherService {
   }
 
   async getClasses(id: string): Promise<Class[]> {
-    const { data } = await api.get<Class[]>(`${this.basePath}/${id}/turmas`);
-    return data;
+    const { data } = await api.get(`${this.basePath}/${id}/turmas`);
+    return Array.isArray(data) ? data.map(mapClass) : [];
   }
 }
 

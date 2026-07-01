@@ -6,6 +6,7 @@ import { studentService } from "@/lib/api/services";
 import { api, getApiMessage } from "@/lib/api/client";
 import type { ListQuery, StudentInput, Transcript } from "@/types/api";
 import type { Enrollment } from "@/types/domain";
+import { mapEnrollment, mapTranscript } from "@/lib/api/services/mappers";
 
 export const studentKeys = {
   all: ["students"] as const,
@@ -19,6 +20,7 @@ export function useStudents(query: ListQuery) {
   return useQuery({
     queryKey: studentKeys.list(query),
     queryFn: () => studentService.list(query),
+    retry: false,
   });
 }
 
@@ -27,14 +29,19 @@ export function useStudent(id: string | undefined) {
     queryKey: studentKeys.detail(id ?? ""),
     queryFn: () => studentService.get(id!),
     enabled: Boolean(id),
+    retry: false,
   });
 }
 
 export function useStudentTranscript(id: string | undefined) {
   return useQuery({
     queryKey: studentKeys.transcript(id ?? ""),
-    queryFn: () => api.get<Transcript>(`/alunos/${id}/historico`).then((r) => r.data),
+    queryFn: () =>
+      api
+        .get(`/matriculas/meus`)
+        .then((r) => mapTranscript(r.data) as Transcript),
     enabled: Boolean(id),
+    retry: false,
   });
 }
 
@@ -42,8 +49,11 @@ export function useStudentEnrollments(id: string | undefined) {
   return useQuery({
     queryKey: studentKeys.enrollments(id ?? ""),
     queryFn: () =>
-      api.get<Enrollment[]>(`/alunos/${id}/matriculas`).then((r) => r.data),
+      api
+        .get(`/matriculas/meus`)
+        .then((r) => (Array.isArray(r.data) ? r.data.map(mapEnrollment) : [] as Enrollment[])),
     enabled: Boolean(id),
+    retry: false,
   });
 }
 

@@ -146,11 +146,11 @@ export function StudentForm({
           name="courseId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Curso</FormLabel>
+              <FormLabel>Departamento</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecione o curso" />
+                    <SelectValue placeholder="Selecione o departamento" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>

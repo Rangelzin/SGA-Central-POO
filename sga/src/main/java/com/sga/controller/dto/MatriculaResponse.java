@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
@@ -39,7 +40,16 @@ public class MatriculaResponse {
                 ? new AlunoResumo(m.getAluno().getId(), m.getAluno().getNome())
                 : null;
         this.turma = m.getTurma() != null
-                ? new TurmaResumo(m.getTurma().getId(), m.getTurma().getCodigo())
+                        ? new TurmaResumo(
+                                        m.getTurma().getId(),
+                                        m.getTurma().getCodigo(),
+                                        m.getTurma().getDataIn(),
+                                        m.getTurma().getDisciplina() != null
+                                                        ? new DisciplinaResumo(
+                                                                        m.getTurma().getDisciplina().getId(),
+                                                                        m.getTurma().getDisciplina().getCodigo(),
+                                                                        m.getTurma().getDisciplina().getCargaHoraria())
+                                                        : null)
                 : null;
     }
 
@@ -51,5 +61,15 @@ public class MatriculaResponse {
     @Schema(description = "Resumo da turma")
     public record TurmaResumo(
             @Schema(description = "ID", example = "550e8400-e29b-41d4-a716-446655440002") UUID id,
-            @Schema(description = "Código", example = "INF001-2026.1-A") String codigo) {}
+                    @Schema(description = "Código", example = "INF001-2026.1-A") String codigo,
+                    @Schema(description = "Data de início", example = "2026-08-01") LocalDate dataIn,
+                    @Schema(description = "Disciplina vinculada") DisciplinaResumo disciplina) {
+    }
+
+    @Schema(description = "Resumo da disciplina da turma")
+    public record DisciplinaResumo(
+                    @Schema(description = "ID", example = "1") Long id,
+                    @Schema(description = "Código", example = "INF0100") String codigo,
+                    @Schema(description = "Carga horária", example = "64") Integer cargaHoraria) {
+    }
 }

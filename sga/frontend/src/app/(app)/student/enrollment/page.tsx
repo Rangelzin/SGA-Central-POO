@@ -18,7 +18,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { useClasses } from "@/features/classes/hooks";
+import { useClassesWithOptions } from "@/features/classes/hooks";
 import { useStudentEnrollments } from "@/features/students/hooks";
 import { useCancelEnrollment, useEnroll } from "@/features/enrollment/hooks";
 import { useAuth } from "@/lib/auth/use-auth";
@@ -28,7 +28,11 @@ import type { Class, Enrollment } from "@/types/domain";
 
 export default function EnrollmentPage() {
   const { user } = useAuth();
-  const classes = useClasses({ term: CURRENT_TERM, page: 0, size: 100 });
+  const canListClasses = user?.role !== "STUDENT";
+  const classes = useClassesWithOptions(
+    { term: CURRENT_TERM, page: 0, size: 100 },
+    { enabled: canListClasses },
+  );
   const enrollments = useStudentEnrollments(user?.uuid);
   const enroll = useEnroll();
   const cancelEnrollment = useCancelEnrollment();
@@ -112,7 +116,12 @@ export default function EnrollmentPage() {
 
       <section className="space-y-3" aria-label="Turmas disponíveis">
         <h2 className="text-lg font-medium">Turmas disponíveis</h2>
-        {classes.isLoading ? (
+        {!canListClasses ? (
+          <EmptyState
+            title="Listagem de turmas indisponível"
+            description="A API atual não permite consultar turmas com perfil de aluno."
+          />
+        ) : classes.isLoading ? (
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
               <Skeleton key={index} className="h-52 rounded-xl" />

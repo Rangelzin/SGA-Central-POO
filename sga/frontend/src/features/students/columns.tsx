@@ -27,8 +27,8 @@ export function getStudentColumns({
     { accessorKey: "email", header: "E-mail" },
     {
       id: "course",
-      header: "Curso",
-      cell: ({ row }) => row.original.course.name,
+      header: "Departamento",
+      cell: ({ row }) => row.original.course?.name ?? "-",
     },
     {
       id: "actions",

@@ -9,9 +9,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { StatCard } from "@/features/dashboard/stat-card";
 import { classKeys, useClasses } from "@/features/classes/hooks";
-import { api } from "@/lib/api/client";
+import { classService } from "@/lib/api/services";
 import { CURRENT_TERM } from "@/lib/constants";
-import type { Enrollment } from "@/types/domain";
 
 export function TeacherDashboard() {
   const classes = useClasses({ teacherId: "me", term: CURRENT_TERM, page: 0, size: 50 });
@@ -22,10 +21,7 @@ export function TeacherDashboard() {
   const enrollmentQueries = useQueries({
     queries: list.map((classItem) => ({
       queryKey: classKeys.enrollments(classItem.uuid),
-      queryFn: () =>
-        api
-          .get<Enrollment[]>(`/classes/${classItem.uuid}/enrollments`)
-          .then((r) => r.data),
+      queryFn: () => classService.getEnrollments(classItem.uuid),
     })),
   });
   const pendingLoading =

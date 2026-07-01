@@ -1,40 +1,102 @@
 import { api } from "@/lib/api/client";
 import type { Page, ClassInput, ClassQuery, ClassReport } from "@/types/api";
 import type { Class, Enrollment } from "@/types/domain";
+import {
+  mapClass,
+  mapClassReport,
+  mapEnrollment,
+  mapPage,
+} from "@/lib/api/services/mappers";
 
 class ClassService {
   private readonly basePath = "/turmas";
 
+  private toNumberOrNull(value: unknown): number | null {
+    if (typeof value === "number") return value;
+    if (typeof value === "string") {
+      const parsed = Number(value);
+      return Number.isNaN(parsed) ? null : parsed;
+    }
+    return null;
+  }
+
+  private async enrichWithSeats(classItem: Class): Promise<Class> {
+    try {
+      const { data } = await api.get(`${this.basePath}/${classItem.uuid}/vagas`);
+
+      const capacityFromApi = this.toNumberOrNull(data?.capacidade);
+      const enrolledFromApi = this.toNumberOrNull(data?.matriculasAtivas);
+      const availableFromApi = this.toNumberOrNull(data?.vagasDisponiveis);
+
+      const capacity = capacityFromApi ?? classItem.capacity;
+      const enrolledCount = enrolledFromApi ?? classItem.enrolledCount;
+      const availableSeats =
+        availableFromApi ?? Math.max(0, capacity - enrolledCount);
+
+      return {
+        ...classItem,
+        capacity,
+        enrolledCount,
+        availableSeats,
+      };
+    } catch {
+      return classItem;
+    }
+  }
+
   async list(query?: ClassQuery): Promise<Page<Class>> {
     const params = new URLSearchParams();
-    if (query?.term) params.append("term", query.term);
-    if (query?.teacherId) params.append("teacherId", query.teacherId);
-    if (query?.subjectId) params.append("subjectId", query.subjectId);
-    if (query?.available !== undefined)
-      params.append("available", String(query.available));
     if (query?.page !== undefined) params.append("page", String(query.page));
     if (query?.size !== undefined) params.append("size", String(query.size));
-    if (query?.search) params.append("search", query.search);
+    if (query?.search) params.append("nome", query.search);
 
-    const { data } = await api.get<Page<Class>>(
+    const { data } = await api.get(
       `${this.basePath}${params.toString() ? `?${params}` : ""}`
     );
-    return data;
+
+    const page = mapPage(data, mapClass);
+    const enrichedContent = await Promise.all(
+      page.content.map((item) => this.enrichWithSeats(item)),
+    );
+
+    return { ...page, content: enrichedContent };
   }
 
   async get(id: string): Promise<Class> {
-    const { data } = await api.get<Class>(`${this.basePath}/${id}`);
-    return data;
+    const { data } = await api.get(`${this.basePath}/${id}`);
+    return mapClass(data);
   }
 
   async create(input: ClassInput): Promise<Class> {
-    const { data } = await api.post<Class>(this.basePath, input);
-    return data;
+    const payload = {
+      codigo: input.code,
+      horario: input.schedule,
+      localidade: input.location,
+      capacidade: input.capacity,
+      dataIn: input.startDate,
+      dataOut: input.endDate,
+      disciplina: { id: input.subjectId },
+      professor: { id: input.teacherId },
+    };
+
+    const { data } = await api.post(this.basePath, payload);
+    return mapClass(data);
   }
 
   async update(id: string, input: ClassInput): Promise<Class> {
-    const { data } = await api.put<Class>(`${this.basePath}/${id}`, input);
-    return data;
+    const payload = {
+      codigo: input.code,
+      horario: input.schedule,
+      localidade: input.location,
+      capacidade: input.capacity,
+      dataIn: input.startDate,
+      dataOut: input.endDate,
+      disciplina: { id: input.subjectId },
+      professor: { id: input.teacherId },
+    };
+
+    const { data } = await api.put(`${this.basePath}/${id}`, payload);
+    return mapClass(data);
   }
 
   async delete(id: string): Promise<void> {
@@ -42,17 +104,15 @@ class ClassService {
   }
 
   async getEnrollments(id: string): Promise<Enrollment[]> {
-    const { data } = await api.get<Enrollment[]>(
-      `${this.basePath}/${id}/alunos`
-    );
-    return data;
+    const { data } = await api.get(`/relatorios/turma/${id}`);
+    const matriculas = Array.isArray(data?.matriculas) ? data.matriculas : [];
+    return matriculas.map(mapEnrollment);
   }
 
   async getReport(id: string): Promise<ClassReport> {
-    const { data } = await api.get<ClassReport>(
-      `${this.basePath}/${id}/relatorio`
-    );
-    return data;
+    const classItem = await this.get(id);
+    const { data } = await api.get(`/relatorios/turma/${id}`);
+    return mapClassReport(data, classItem);
   }
 }
 

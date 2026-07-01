@@ -24,9 +24,12 @@ public class Disciplina {
 
     @NotBlank
     private String codigo;
+    @NotBlank
+    private String nome;
     private String tipo;
     @NotNull
     private Integer cargaHoraria;
+    private String ementa;
     private String preRequisito;
     private boolean ativo;
 

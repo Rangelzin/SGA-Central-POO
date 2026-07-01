@@ -14,6 +14,9 @@ public class DisciplinaResponse {
     @Schema(description = "Código único", example = "INF001")
     private final String codigo;
 
+    @Schema(description = "Nome da disciplina", example = "Algoritmos e Programação")
+    private final String nome;
+
     @Schema(description = "Tipo: OBRIGATORIA, OPTATIVA ou NUCLEO_LIVRE", example = "OBRIGATORIA")
     private final String tipo;
 
@@ -22,6 +25,9 @@ public class DisciplinaResponse {
 
     @Schema(description = "Código do pré-requisito", example = "INF000")
     private final String preRequisito;
+
+    @Schema(description = "Ementa da disciplina")
+    private final String ementa;
 
     @Schema(description = "Indica se a disciplina está ativa", example = "true")
     private final boolean ativo;
@@ -32,9 +38,11 @@ public class DisciplinaResponse {
     public DisciplinaResponse(Disciplina disciplina) {
         this.id = disciplina.getId();
         this.codigo = disciplina.getCodigo();
+        this.nome = disciplina.getNome();
         this.tipo = disciplina.getTipo();
         this.cargaHoraria = disciplina.getCargaHoraria();
         this.preRequisito = disciplina.getPreRequisito();
+        this.ementa = disciplina.getEmenta();
         this.ativo = disciplina.isAtivo();
         this.departamento = disciplina.getDepartamento() != null
                 ? new DepartamentoResponse(disciplina.getDepartamento())
