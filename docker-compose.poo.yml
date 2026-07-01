@@ -1,0 +1,17 @@
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: sga-postgres-poo
+    environment:
+      POSTGRES_DB: ${DB_NAME:-SGAI}
+      POSTGRES_USER: ${DB_USERNAME:-SGAI}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-SGAI_1234}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_poo:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata_poo:
+    driver: local
