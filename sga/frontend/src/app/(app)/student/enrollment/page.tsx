@@ -28,10 +28,9 @@ import type { Class, Enrollment } from "@/types/domain";
 
 export default function EnrollmentPage() {
   const { user } = useAuth();
-  const canListClasses = user?.role !== "STUDENT";
   const classes = useClassesWithOptions(
     { term: CURRENT_TERM, page: 0, size: 100 },
-    { enabled: canListClasses },
+    { enabled: Boolean(user) },
   );
   const enrollments = useStudentEnrollments(user?.uuid);
   const enroll = useEnroll();
@@ -116,12 +115,7 @@ export default function EnrollmentPage() {
 
       <section className="space-y-3" aria-label="Turmas disponíveis">
         <h2 className="text-lg font-medium">Turmas disponíveis</h2>
-        {!canListClasses ? (
-          <EmptyState
-            title="Listagem de turmas indisponível"
-            description="A API atual não permite consultar turmas com perfil de aluno."
-          />
-        ) : classes.isLoading ? (
+        {classes.isLoading ? (
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
               <Skeleton key={index} className="h-52 rounded-xl" />
@@ -184,7 +178,11 @@ export default function EnrollmentPage() {
                       size="sm"
                       disabled={Boolean(blockReason) || enroll.isPending}
                       onClick={() =>
-                        enroll.mutate({ studentId: "me", classId: classItem.uuid })
+                        user &&
+                        enroll.mutate({
+                          alunoId: user.uuid,
+                          turmaId: classItem.uuid,
+                        })
                       }
                     >
                       Matricular

@@ -33,8 +33,8 @@ public class MatriculaController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Matricula aluno em turma", description = "Requer ADMIN.")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ALUNO')")
+    @Operation(summary = "Matricula aluno em turma", description = "Requer ADMIN ou ALUNO.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Matrícula realizada"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos ou turma sem vagas",

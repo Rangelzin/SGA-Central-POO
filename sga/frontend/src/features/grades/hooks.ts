@@ -24,7 +24,10 @@ export function useSetGrade(classId: string) {
   return useMutation({
     mutationFn: ({ enrollmentId, grade }: { enrollmentId: string; grade: number }) =>
       api
-        .put<Enrollment>(`/matriculados/${enrollmentId}/nota`, { nota: grade })
+        .post<Enrollment>("/avaliacoes/nota", {
+          matriculadoId: enrollmentId,
+          nota: grade,
+        })
         .then((r) => r.data),
     onSuccess: () => {
       invalidate();
@@ -45,7 +48,10 @@ export function useSetAttendance(classId: string) {
       attendance: number;
     }) =>
       api
-        .put<Enrollment>(`/matriculados/${enrollmentId}/frequencia`, { frequencia: attendance })
+        .post<Enrollment>("/avaliacoes/frequencia", {
+          matriculadoId: enrollmentId,
+          frequencia: attendance,
+        })
         .then((r) => r.data),
     onSuccess: () => {
       invalidate();

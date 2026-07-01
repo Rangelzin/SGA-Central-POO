@@ -49,6 +49,7 @@ export interface StudentInput {
   cpf: string;
   birthDate: string;
   email: string;
+  senha?: string;
   courseId: string;
 }
 
@@ -58,6 +59,7 @@ export interface TeacherInput {
   cpf: string;
   birthDate: string;
   email: string;
+  senha?: string;
   title: string;
   departmentId: string;
 }
@@ -98,8 +100,8 @@ export interface ClassQuery {
 
 // Matrícula — RF-04
 export interface EnrollmentInput {
-  studentId: string;
-  classId: string;
+  alunoId: string;
+  turmaId: string;
 }
 
 // Notas e frequência — RF-05

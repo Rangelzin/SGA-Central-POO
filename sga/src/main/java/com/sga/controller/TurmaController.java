@@ -41,7 +41,7 @@ public class TurmaController {
     private final MatriculaService matriculaService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR', 'ALUNO')")
     @Operation(summary = "Lista turmas paginado")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Página de turmas retornada"),
@@ -67,7 +67,7 @@ public class TurmaController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR', 'ALUNO')")
     @Operation(summary = "Busca turma por ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Turma encontrada"),
@@ -123,7 +123,7 @@ public class TurmaController {
     }
 
     @GetMapping("/{id}/vagas")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR', 'ALUNO')")
     @Operation(summary = "Consulta vagas disponíveis na turma")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Informações de vagas retornadas"),

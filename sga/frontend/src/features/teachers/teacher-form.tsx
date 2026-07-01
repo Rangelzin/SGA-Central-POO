@@ -33,10 +33,12 @@ export function TeacherForm({
   teacher,
   onSubmit,
   isPending,
+  requirePassword = false,
 }: {
   teacher?: Teacher;
   onSubmit: (values: TeacherFormValues) => Promise<unknown>;
   isPending: boolean;
+    requirePassword?: boolean;
 }) {
   const departments = useDepartments();
 
@@ -47,12 +49,18 @@ export function TeacherForm({
       cpf: teacher ? formatCpf(teacher.cpf) : "",
       birthDate: teacher?.birthDate ?? "",
       email: teacher?.email ?? "",
+      senha: "",
       title: teacher?.title ?? "",
       departmentId: teacher?.department.uuid ?? "",
     },
   });
 
   async function handleSubmit(values: TeacherFormValues) {
+    if (requirePassword && !values.senha?.trim()) {
+      form.setError("senha", { message: "Informe a senha." });
+      return;
+    }
+
     try {
       await onSubmit(values);
     } catch (error) {
@@ -138,6 +146,30 @@ export function TeacherForm({
               <FormControl>
                 <Input type="email" placeholder="joao@sga.edu.br" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="senha"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Senha</FormLabel>
+              <FormControl>
+                <Input
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                {teacher
+                  ? "Opcional na edição. Se preencher, a senha será atualizada."
+                  : "Obrigatória para criar o professor."}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

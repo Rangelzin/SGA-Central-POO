@@ -22,7 +22,11 @@ export default function NewStudentPage() {
         title="Novo aluno"
         description="A matrícula é gerada automaticamente após o cadastro."
       />
-      <StudentForm onSubmit={handleSubmit} isPending={createStudent.isPending} />
+      <StudentForm
+        onSubmit={handleSubmit}
+        isPending={createStudent.isPending}
+        requirePassword
+      />
     </div>
   );
 }

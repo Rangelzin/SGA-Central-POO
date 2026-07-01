@@ -31,10 +31,12 @@ export function StudentForm({
   student,
   onSubmit,
   isPending,
+  requirePassword = false,
 }: {
   student?: Student;
   onSubmit: (values: StudentFormValues) => Promise<unknown>;
   isPending: boolean;
+    requirePassword?: boolean;
 }) {
   const courses = useCourses();
 
@@ -45,11 +47,17 @@ export function StudentForm({
       cpf: student ? formatCpf(student.cpf) : "",
       birthDate: student?.birthDate ?? "",
       email: student?.email ?? "",
+      senha: "",
       courseId: student?.course.uuid ?? "",
     },
   });
 
   async function handleSubmit(values: StudentFormValues) {
+    if (requirePassword && !values.senha?.trim()) {
+      form.setError("senha", { message: "Informe a senha." });
+      return;
+    }
+
     try {
       await onSubmit(values);
     } catch (error) {
@@ -136,6 +144,30 @@ export function StudentForm({
               <FormControl>
                 <Input type="email" placeholder="maria@sga.edu.br" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="senha"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Senha</FormLabel>
+              <FormControl>
+                <Input
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                {student
+                  ? "Opcional na edição. Se preencher, a senha será atualizada."
+                  : "Obrigatória para criar o aluno."}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -30,6 +30,7 @@ class TeacherService {
       cpf: input.cpf,
       dataNascimento: input.birthDate,
       titulacao: input.title,
+      senha: input.senha?.trim() || undefined,
       departamento: { id: input.departmentId },
     };
 
@@ -44,6 +45,7 @@ class TeacherService {
       cpf: input.cpf,
       dataNascimento: input.birthDate,
       titulacao: input.title,
+      senha: input.senha?.trim() || undefined,
       departamento: { id: input.departmentId },
     };
 

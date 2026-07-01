@@ -29,6 +29,7 @@ class StudentService {
       email: input.email,
       cpf: input.cpf,
       dataNascimento: input.birthDate,
+      senha: input.senha?.trim() || undefined,
       departamento: { id: input.courseId },
     };
 
@@ -42,6 +43,7 @@ class StudentService {
       email: input.email,
       cpf: input.cpf,
       dataNascimento: input.birthDate,
+      senha: input.senha?.trim() || undefined,
       departamento: { id: input.courseId },
     };
 

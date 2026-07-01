@@ -40,10 +40,10 @@ class EnrollmentService {
     enrollmentId: string,
     input: GradeInput
   ): Promise<Enrollment> {
-    const { data } = await api.patch<Enrollment>(
-      `${this.basePath}/${enrollmentId}/nota`,
-      input
-    );
+    const { data } = await api.post<Enrollment>("/avaliacoes/nota", {
+      matriculadoId: enrollmentId,
+      nota: input.grade,
+    });
     return data;
   }
 
@@ -51,10 +51,10 @@ class EnrollmentService {
     enrollmentId: string,
     input: AttendanceInput
   ): Promise<Enrollment> {
-    const { data } = await api.patch<Enrollment>(
-      `${this.basePath}/${enrollmentId}/frequencia`,
-      input
-    );
+    const { data } = await api.post<Enrollment>("/avaliacoes/frequencia", {
+      matriculadoId: enrollmentId,
+      frequencia: input.attendance,
+    });
     return data;
   }
 }

@@ -19,7 +19,11 @@ export default function NewTeacherPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Novo professor" description="Cadastre um novo docente." />
-      <TeacherForm onSubmit={handleSubmit} isPending={createTeacher.isPending} />
+      <TeacherForm
+        onSubmit={handleSubmit}
+        isPending={createTeacher.isPending}
+        requirePassword
+      />
     </div>
   );
 }
